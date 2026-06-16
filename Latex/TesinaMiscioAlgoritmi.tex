@@ -136,6 +136,60 @@
 	
 	Oltre all'analisi prestazionale pura asintotica e di wall-clock, il progetto si propone di integrare un motore grafico per la visualizzazione dinamica passo-passo della crescita dell'albero, controllato da un'euristica di temporizzazione per garantire la fluidità dell'animazione a prescindere dal dominio di calcolo impostato.
 	
+	\section{Algoritmi implementati}
+	
+	In questo capitolo vengono analizzati in dettaglio i primi tre algoritmi sviluppati per la generazione di labirinti perfetti. Ciascun approccio interpreta il problema dell'estrazione di uno Spanning Tree casuale sfruttando strutture dati e paradigmi logici differenti.
+	
+	\subsection{Randomized Depth-First Search (Recursive Backtracker)}
+	L'algoritmo basato sulla ricerca in profondità (DFS) modificata è un approccio classico di tipo \textit{backtracking}. Esso tende a generare labirinti caratterizzati da un basso numero di diramazioni corte e da corridoi marcatamente lunghi e tortuosi (frequenti vicoli ciechi profondi), proprietà topologica nota in letteratura come ``alto fattore di fiumi''.
+	
+	\subsubsection{Scelte implementative e gestione dello Stack}
+	La formulazione puramente ricorsiva dell'algoritmo DFS soffre intrinsecamente del limite di allocazione dello stack di memoria della Java Virtual Machine (\textit{StackOverflowError}) quando la dimensione della griglia $n = |V|$ scala linearmente. Per ovviare a questa limitazione hardware, si è optato per una \textbf{vettorializzazione esplicita dello stack} mediante la struttura dati \texttt{java.util.Stack}.
+	
+	Il comportamento del singolo passo operativo, fondamentale per agganciare il ciclo di animazione della veste grafica senza bloccare il thread di rendering, è regolato dalla seguente logica a stati stabili:
+	\begin{enumerate}
+		\item Viene esaminata la cella in cima allo stack senza estrarla (\texttt{peek()}).
+		\item Si interroga l'intorno geometrico della cella per estrarre l'insieme dei vicini non ancora visitati.
+		\item Se l'insieme è non vuoto, viene selezionato casualmente un vicino, viene rimosso il muro divisorio tra le due celle, la nuova cella viene marcata come visitata e inserita nello stack (\texttt{push()}).
+		\item Se non vi sono vicini validi (vicolo cieco), si effettua il ritorno a ritroso rimuovendo la cella corrente dallo stack (\texttt{pop()}).
+	\end{enumerate}
+	
+	\subsubsection{Analisi della Complessità Teorica}
+	In una griglia regolare planare, il grado massimo di ogni vertice è limitato superiormente da una costante ($deg(v) \le 4$). Di conseguenza, il numero totale di archi è lineare rispetto al numero dei nodi, ovvero $|E| = \mathcal{O}(V)$. 
+	Poiché ogni cella viene inserita ed estratta dallo stack esattamente una volta, il ciclo interno esegue al più $2|V|$ iterazioni. L'accesso e la modifica delle proprietà della cella (muri e flag di visita) avvengono in tempo costante $\mathcal{O}(1)$. La complessità temporale asintotica dell'algoritmo è pertanto strettamente lineare:
+	$$\mathcal{O}(V)$$
+	Lo spazio aggiuntivo occupato dallo stack nel caso pessimo (un unico corridoio lineare senza diramazioni) coincide con l'altezza massima dell'albero, richiedendo una complessità spaziale pari a $\mathcal{O}(V)$.
+	
+	\subsection{Algoritmo di Kruskal Randomizzato}
+	L'adattamento dell'algoritmo di Kruskal per la generazione di labirinti opera trattando tutti i muri divisori della griglia come un insieme di archi non pesati. Al posto di minimizzare il costo totale ordinando gli archi, l'algoritmo estrae un arco in modo puramente casuale a ogni iterazione, fondendo progressivamente i sotto-alberi isolati.
+	
+	\subsubsection{La struttura dati Disjoint-Set (Union-Find)}
+	Per controllare in tempo quasi-costante se l'abbattimento di un muro introduce un ciclo indesiderato, è stata implementata da zero una foresta di insiemi disgiunti (\textbf{Disjoint-Set}) dotata di due ottimizzazioni fondamentali:
+	\begin{itemize}
+		\item \textbf{Unione per Rango (Union by Rank):} Attacca sempre l'albero con altezza minore sotto la radice dell'albero con altezza maggiore, limitando la crescita logaritmica delle strutture.
+		\item \textbf{Compressione dei Cammini (Path Compression):} Durante la fase di ricerca (\texttt{find}), ogni nodo visitato viene agganciato direttamente alla radice dell'insieme, appiattendo la struttura per le invocazioni successive.
+	\end{itemize}
+	
+	\subsubsection{Analisi della Complessità Teorica}
+	Inizialmente la lista contiene la totalità degli archi possibili della griglia, pari a $|E| \approx 2|V|$. Il mescolamento iniziale (\texttt{Collections.shuffle}) richiede tempo lineare $\mathcal{O}(E)$. 
+	A ogni passo estrattivo, l'algoritmo esegue due operazioni di \texttt{find} e al più una operazione di \texttt{union}. Sotto le ipotesi di compressione dei cammini e unione per rango, la complessità ammortizzata di ciascuna operazione è limitata superiormente dalla funzione inversa di una crescita esponenziale raddoppiata, espressa mediante la funzione di iterazione di Ackermann $\alpha(n)$. La complessità temporale complessiva per elaborare tutti gli archi è:
+	$$\mathcal{O}(E \cdot \alpha(V))$$
+	Poiché nella nostra griglia $|E| = \mathcal{O}(V)$ e la funzione $\alpha$ assume un valore pratico minore di $5$ per qualsiasi input realistico, l'algoritmo opera in tempo di \textit{wall-clock} quasi-lineare. Lo spazio aggiuntivo per mantenere i vettori dei padri e dei ranghi è pari a $\mathcal{O}(V)$.
+	
+	\subsection{Algoritmo di Prim Modificato}
+	L'algoritmo di Prim si sviluppa espandendo radialmente un unico sotto-albero a partire da una cella di innesco casuale. Mantiene costantemente traccia di una struttura di ``frontiera'', definita come l'insieme di tutti i muri che separano una cella già inclusa nel labirinto da una cella non ancora esplorata.
+	
+	\subsubsection{Scelte implementative sulla Frontiera}
+	Nell'implementazione didattica standard dell'algoritmo di Prim (utilizzato per la ricerca del Minimum Spanning Tree classico), la frontiera viene memorizzata in una coda a priorità (\textit{Min-Heap}) basata sul peso degli archi. Nel contesto della generazione procedurale casuale, l'assenza di pesi deterministici ci permette di sostituire lo heap con una lista dinamica indicizzata (\texttt{java.util.ArrayList}). 
+	
+	La rimozione di un elemento casuale da una lista basata su array richiede lo spostamento degli elementi successivi, operazione intrinsecamente inefficiente se eseguita al centro della struttura ($\mathcal{O}(N)$). Per mantenere il costo microscopico nell'interfaccia a passi, si memorizzano i riferimenti strutturali espliciti dei muri (\texttt{PrimWall}) e si effettua un campionamento ad accesso diretto.
+	
+	\subsubsection{Analisi della Complessità Teorica}
+	Ogni cella viene visitata una sola volta e aggiunge al più 4 muri alla lista di frontiera. Di conseguenza, il numero massimo di elementi immessi nella lista è proporzionale a $4|V|$. 
+	L'estrazione casuale di un indice da una struttura \texttt{ArrayList} avviene in tempo costante $\mathcal{O}(1)$, ma la rimozione di un elemento richiede nel caso pessimo uno slittamento lineare di memoria pari alla dimensione istantanea della frontiera stessa, che nel regime denso di esplorazione può contenere fino a $\mathcal{O}(V)$ elementi. La complessità temporale complessiva su griglia si attesta quindi a:
+	$$\mathcal{O}(V^2)$$
+	Dal punto di vista spaziale, la frontiera immagazzina al più il perimetro dinamico di crescita dell'albero, occupando in memoria uno spazio delimitato superiormente da $\mathcal{O}(V)$.
+	
 	\begin{thebibliography}{9}
 		\bibitem{wiki_maze} 
 		Wikipedia contributors, ``Maze generation algorithm,'' \textit{Wikipedia, The Free Encyclopedia}, \url{https://en.wikipedia.org/wiki/Maze_generation_algorithm}.

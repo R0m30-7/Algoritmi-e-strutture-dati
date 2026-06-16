@@ -10,18 +10,17 @@ public class MazeVisualizer extends JFrame {
     private MazeAlgorithm algorithm;
     private JPanel canvas;
 
+    // Sostituisci la dichiarazione della variabile d'istanza algoritmica con una combo box:
+    private JComboBox<String> algoSelector;
+    private MazeAlgorithm[] algorithms = { new RandomizedDFS(), new RandomizedKruskal(), new RandomizedPrim() };
+
+    // Modifica il costruttore di MazeVisualizer:
     public MazeVisualizer() {
         setTitle("Generatore di Labirinti - ASD");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         grid = new Cell[ROWS][COLS];
-        for (int y = 0; y < ROWS; y++) {
-            for (int x = 0; x < COLS; x++) {
-                grid[y][x] = new Cell(x, y);
-            }
-        }
-
-        algorithm = new RandomizedDFS();
+        resetGrid();
 
         canvas = new JPanel() {
             @Override
@@ -39,16 +38,23 @@ public class MazeVisualizer extends JFrame {
         setLayout(new BorderLayout());
         add(canvas, BorderLayout.CENTER);
         
+        String[] algoNames = { "Randomized DFS", "Randomized Kruskal", "Randomized Prim" };
+        algoSelector = new JComboBox<>(algoNames);
+        
         JButton btnAnimate = new JButton("Generazione Animata");
         JButton btnInstant = new JButton("Generazione Istantanea");
         
         JPanel controls = new JPanel();
+        controls.add(new JLabel("Algoritmo:"));
+        controls.add(algoSelector);
         controls.add(btnAnimate);
         controls.add(btnInstant);
         add(controls, BorderLayout.SOUTH);
 
         btnAnimate.addActionListener(e -> startAnimatedGeneration());
         btnInstant.addActionListener(e -> {
+            resetGrid();
+            algorithm = algorithms[algoSelector.getSelectedIndex()];
             algorithm.generateFully(grid);
             canvas.repaint();
         });
@@ -57,14 +63,23 @@ public class MazeVisualizer extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    private void resetGrid() {
+        for (int y = 0; y < ROWS; y++) {
+            for (int x = 0; x < COLS; x++) {
+                grid[y][x] = new Cell(x, y);
+            }
+        }
+    }
+
     private void startAnimatedGeneration() {
+        resetGrid();
+        algorithm = algorithms[algoSelector.getSelectedIndex()];
         algorithm.init(grid);
         canvas.repaint();
 
-        // Calcolo del delay dinamico per un massimo di 15 secondi (15000 ms)
         int estimatedSteps = ROWS * COLS * 2; 
         int calculatedDelay = 15000 / estimatedSteps;
-        int delay = Math.max(1, Math.min(30, calculatedDelay)); // cap compreso tra 1 e 30ms
+        int delay = Math.max(1, Math.min(15, calculatedDelay));
 
         Timer timer = new Timer(delay, null);
         timer.addActionListener(e -> {
