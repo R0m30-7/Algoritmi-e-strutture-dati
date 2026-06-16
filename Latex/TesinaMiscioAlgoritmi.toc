@@ -1,3 +1,5 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
-\contentsline {section}{\numberline {1}Sezione puzzolente}{1}{section.1}%
+\contentsline {section}{\numberline {1}Il problema della generazione di labirinti}{1}{section.1}%
+\contentsline {section}{\numberline {2}Modellazione formale tramite Teoria dei Grafi}{1}{section.2}%
+\contentsline {section}{\numberline {3}Obiettivi del progetto}{2}{section.3}%

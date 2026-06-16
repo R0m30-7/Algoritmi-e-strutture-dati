@@ -103,5 +103,41 @@
 	% Da questa pagina in poi inizia la numerazione standard (1, 2, 3...)
 	\pagenumbering{arabic}
 	
-	\section{Sezione puzzolente}
+	\section{Il problema della generazione di labirinti}
+	Il problema della generazione di labirinti perfetti consiste nel ricavare una struttura planare complessa dotata di un'unica interconnessione spaziale priva di interruzioni (regioni isolate) e priva di percorsi alternativi chiusi (cicli) \cite{wiki_maze}. 
+	
+	In ambito informatico e computazionale, un labirinto non rappresenta semplicemente un elemento ludico, ma si configura come un eccellente banco di prova per lo studio della topologia strutturale, della teoria dei grafi e dell'efficienza algoritmica nell'esplorazione spaziale. Trova inoltre ampie applicazioni nella generazione procedurale di contenuti (PCG) nei videogiochi, nella pianificazione di percorsi per la robotica mobile e nella simulazione di reti di micro-canali biologici o idraulici.
+	
+	\section{Modellazione formale tramite Teoria dei Grafi}
+	Il modo formalmente più rigoroso per descrivere la topologia di un labirinto adotta le definizioni della teoria dei grafi. Una griglia bidimensionale predeterminata (sia essa rettangolare, esagonale o circolare) può essere mappata direttamente su un grafo non diretto e pesato $G = (V, E)$, in cui:
+	\begin{itemize}
+		\item L'insieme dei vertici $V$ rappresenta l'insieme delle celle discrete che compongono lo spazio calpestabile del labirinto, con $|V| = n$.
+		\item L'insieme degli archi $E$ rappresenta l'insieme di tutti i passaggi originariamente potenziali (ovvero l'assenza di un muro divisorio) tra celle geometricamente adiacenti.
+	\end{itemize}
+	
+	Generare un labirinto strutturalmente valido significa individuare un sottografo accatastato $G' = (V, E')$ tale che $G' \subseteq G$, che rispetti due vincoli stringenti:
+	\begin{enumerate}
+		\item \textbf{Connettività:} Il sottografo $G'$ deve essere strettamente connesso. Se $G'$ non fosse connesso, esisterebbero regioni isolate e strutturalmente irraggiungibili all'interno della griglia, invalidando l'integrità del labirinto.
+		\item \textbf{Alinearità (Assenza di cicli):} Il sottografo $G'$ deve essere aciclico. La presenza di un ciclo implicherebbe l'esistenza di cammini multipli per connettere due nodi qualsiasi, riducendo la complessità intrinseca del labirinto e violando la definizione classica di ``labirinto perfetto''.
+	\end{enumerate}
+	
+	Dalle proprietà fondamentali della teoria dei grafi, un sottografo di $G$ che contiene tutti i vertici $V$, è connesso ed è privo di cicli è per definizione un \textbf{Albero di Copertura} (o \textit{Spanning Tree}). Di conseguenza, l'intero problema della generazione procedurale di labirinti si riduce all'estrazione di uno \textbf{Spanning Tree casuale} partendo dal grafo iniziale della griglia. I muri del labirinto finito saranno costituiti esattamente dal complemento degli archi selezionati, ovvero dall'insieme degli archi esclusi $E \setminus E'$.
+	
+	\section{Obiettivi del progetto}
+	L'obiettivo principale di questo lavoro di tesi è implementare, analizzare e confrontare sperimentalmente le prestazioni e le caratteristiche topologiche delle principali famiglie di algoritmi per l'estrazione di Spanning Tree casuali presenti in letteratura. 
+	
+	Nello specifico, la suite software sviluppata in linguaggio Java mira a ricoprire l'intero spettro algoritmico descritto nei requisiti ministeriali, dividendoli per paradigmi di progettazione:
+	\begin{itemize}
+		\item \textbf{Algoritmi basati su Tree/Graph Traversal:} Randomized Depth-First Search (Recursive Backtracker) e Randomized Breadth-First Search.
+		\item \textbf{Algoritmi basati su Minimum Spanning Tree adattati:} Algoritmo di Kruskal randomizzato e Algoritmo di Prim modificato.
+		\item \textbf{Algoritmi basati su Random Walk:} Algoritmo di Aldous-Broder e Algoritmo di Wilson.
+		\item \textbf{Algoritmi geometrici o a divisione spaziale:} Algoritmo di Divisione Ricorsiva ed Eller's Algorithm.
+	\end{itemize}
+	
+	Oltre all'analisi prestazionale pura asintotica e di wall-clock, il progetto si propone di integrare un motore grafico per la visualizzazione dinamica passo-passo della crescita dell'albero, controllato da un'euristica di temporizzazione per garantire la fluidità dell'animazione a prescindere dal dominio di calcolo impostato.
+	
+	\begin{thebibliography}{9}
+		\bibitem{wiki_maze} 
+		Wikipedia contributors, ``Maze generation algorithm,'' \textit{Wikipedia, The Free Encyclopedia}, \url{https://en.wikipedia.org/wiki/Maze_generation_algorithm}.
+	\end{thebibliography}
 \end{document}
