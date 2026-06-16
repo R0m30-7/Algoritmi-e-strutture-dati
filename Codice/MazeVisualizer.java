@@ -2,29 +2,30 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.Queue;
 
 public class MazeVisualizer extends JFrame {
-    private final int ROWS = 30;
-    private final int COLS = 30;
+    private int rows = 30; 
+    private int cols = 30; 
     private final int CELL_SIZE = 20;
     private final int MARGIN = 20;
     
     private Cell[][] grid;
     private MazeAlgorithm algorithm;
     private JPanel canvas;
+    
     private JComboBox<String> algoSelector;
+    private JSpinner spinnerCols; 
+    private JSpinner spinnerRows; 
     private JButton btnAnimate;
     private JButton btnInstant;
-    private JButton btnSolve; // Il nuovo pulsante di risoluzione
+    private JButton btnSolve;
 
-    // Lista che conterrà le celle del cammino risolutivo
     private List<Cell> solutionPath = new ArrayList<>();
 
     private MazeAlgorithm[] algorithms = { 
         new RandomizedDFS(), 
         new RandomizedKruskal(), 
-        new RandomizedPrim(),
+        new RandomizedPrims(), // Assicurati che il nome della classe coincida (es. RandomizedPrim o RandomizedPrims)
         new AldousBroder(),
         new WilsonsAlgorithm(),
         new RecursiveDivision(),
@@ -35,7 +36,7 @@ public class MazeVisualizer extends JFrame {
         setTitle("Generatore e Risolutore di Labirinti - ASD");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        grid = new Cell[ROWS][COLS];
+        grid = new Cell[rows][cols];
         resetGrid();
 
         canvas = new JPanel() {
@@ -47,27 +48,22 @@ public class MazeVisualizer extends JFrame {
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2d.translate(MARGIN, MARGIN); 
                 
-                // 1. Disegna la griglia del labirinto
-                for (int y = 0; y < ROWS; y++) {
-                    for (int x = 0; x < COLS; x++) {
+                for (int y = 0; y < rows; y++) {
+                    for (int x = 0; x < cols; x++) {
                         grid[y][x].draw(g2d, CELL_SIZE);
                     }
                 }
 
-                // 2. Disegna la striscia colorata della soluzione (se presente)
                 if (solutionPath != null && !solutionPath.isEmpty()) {
-                    g2d.setColor(new Color(33, 150, 243)); // Un bel blu acceso per la soluzione
-                    g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); // Striscia spessa 5px
+                    g2d.setColor(new Color(33, 150, 243)); 
+                    g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); 
                     
                     for (int i = 0; i < solutionPath.size() - 1; i++) {
                         Cell c1 = solutionPath.get(i);
                         Cell c2 = solutionPath.get(i + 1);
                         
-                        // Trova il centro della cella corrente
                         int x1 = c1.x * CELL_SIZE + CELL_SIZE / 2;
                         int y1 = c1.y * CELL_SIZE + CELL_SIZE / 2;
-                        
-                        // Trova il centro della cella successiva
                         int x2 = c2.x * CELL_SIZE + CELL_SIZE / 2;
                         int y2 = c2.y * CELL_SIZE + CELL_SIZE / 2;
                         
@@ -77,47 +73,62 @@ public class MazeVisualizer extends JFrame {
             }
         };
         
-        int canvasWidth = COLS * CELL_SIZE + (MARGIN * 2) + 1;
-        int canvasHeight = ROWS * CELL_SIZE + (MARGIN * 2) + 1;
-        canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
         canvas.setBackground(Color.WHITE);
+        updateCanvasSize(); 
         
         setLayout(new BorderLayout());
         add(canvas, BorderLayout.CENTER);
         
+        // Pannello dei Controlli con wrapping intelligente dell'altezza
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5)) {
+            @Override
+            public Dimension getPreferredSize() {
+                if (canvas == null) return super.getPreferredSize();
+                // Forza la larghezza dei controlli a combaciare con quella del labirinto
+                int targetWidth = canvas.getPreferredSize().width;
+                // Calcola l'altezza necessaria per ospitare i componenti mandandoli a capo
+                int targetHeight = calculateWrappedHeight(this, targetWidth);
+                return new Dimension(targetWidth, targetHeight);
+            }
+        };
+        
+        // Configurazione componenti interni
         String[] algoNames = { 
-            "Randomized DFS", 
-            "Randomized Kruskal", 
-            "Randomized Prim", 
-            "Aldous-Broder", 
-            "Wilson's Algorithm",
-            "Recursive Division",
-            "Eller's Algorithm"
+            "Randomized DFS", "Randomized Kruskal", "Randomized Prim", 
+            "Aldous-Broder", "Wilson's Algorithm", "Recursive Division", "Eller's Algorithm"
         };
         algoSelector = new JComboBox<>(algoNames);
+        controls.add(new JLabel("Algoritmo:"));
+        controls.add(algoSelector);
+        
+        spinnerCols = new JSpinner(new SpinnerNumberModel(30, 5, 80, 1));
+        spinnerRows = new JSpinner(new SpinnerNumberModel(30, 5, 80, 1));
+        
+        controls.add(new JLabel("Dim. X:"));
+        controls.add(spinnerCols);
+        controls.add(new JLabel("Dim. Y:"));
+        controls.add(spinnerRows);
         
         btnAnimate = new JButton("Generazione Animata");
         btnInstant = new JButton("Generazione Istantanea");
         btnSolve = new JButton("Risolvi Labirinto");
-        btnSolve.setEnabled(false); // Disabilitato finché il labirinto non è pronto
+        btnSolve.setEnabled(false); 
         
-        JPanel controls = new JPanel();
-        controls.add(new JLabel("Algoritmo:"));
-        controls.add(algoSelector);
         controls.add(btnAnimate);
         controls.add(btnInstant);
         controls.add(btnSolve);
+        
         add(controls, BorderLayout.SOUTH);
 
+        // Gestione Azioni
         btnAnimate.addActionListener(e -> startAnimatedGeneration());
         
         btnInstant.addActionListener(e -> {
-            resetGrid();
-            btnSolve.setEnabled(false);
+            applyNewDimensions();
             algorithm = algorithms[algoSelector.getSelectedIndex()];
             algorithm.generateFully(grid);
             openEntranceAndExit();
-            btnSolve.setEnabled(true); // Abilita il pulsante
+            btnSolve.setEnabled(true); 
             canvas.repaint();
         });
 
@@ -130,31 +141,82 @@ public class MazeVisualizer extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void resetGrid() {
+    /**
+     * Algoritmo di simulazione del layout: calcola l'altezza verticale necessaria
+     * per disporre tutti i componenti visibili senza che escano dalla larghezza massima consentita.
+     */
+    private int calculateWrappedHeight(JPanel panel, int maxWidth) {
+        FlowLayout layout = (FlowLayout) panel.getLayout();
+        int hgap = layout.getHgap();
+        int vgap = layout.getVgap();
+        
+        int x = hgap;
+        int y = vgap;
+        int rowHeight = 0;
+        boolean firstInRow = true;
+        
+        for (Component comp : panel.getComponents()) {
+            if (!comp.isVisible()) continue;
+            Dimension d = comp.getPreferredSize();
+            
+            // Se il componente sfora la riga corrente, va a capo
+            if (!firstInRow && x + d.width + hgap > maxWidth) {
+                x = hgap;
+                y += rowHeight + vgap;
+                rowHeight = 0;
+                firstInRow = true;
+            }
+            
+            x += d.width + hgap;
+            rowHeight = Math.max(rowHeight, d.height);
+            firstInRow = false;
+        }
+        
+        return y + rowHeight + vgap;
+    }
+
+    private void applyNewDimensions() {
         solutionPath.clear();
-        for (int y = 0; y < ROWS; y++) {
-            for (int x = 0; x < COLS; x++) {
+        rows = (Integer) spinnerRows.getValue();
+        cols = (Integer) spinnerCols.getValue();
+        grid = new Cell[rows][cols];
+        resetGrid();
+        updateCanvasSize();
+    }
+
+    private void updateCanvasSize() {
+        int canvasWidth = cols * CELL_SIZE + (MARGIN * 2) + 1;
+        int canvasHeight = rows * CELL_SIZE + (MARGIN * 2) + 1;
+        canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
+        pack(); // Ricalcola le proporzioni della finestra richiamando il getPreferredSize() aggiornato
+    }
+
+    private void resetGrid() {
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
                 grid[y][x] = new Cell(x, y);
             }
         }
     }
 
     private void openEntranceAndExit() {
-        grid[0][0].walls[3] = false; // Ingresso a Ovest
-        grid[ROWS - 1][COLS - 1].walls[2] = false; // Uscita a Est
+        grid[0][0].walls[3] = false; 
+        grid[rows - 1][cols - 1].walls[2] = false; 
     }
 
     private void startAnimatedGeneration() {
-        resetGrid();
+        applyNewDimensions();
         btnSolve.setEnabled(false);
         btnAnimate.setEnabled(false);
         btnInstant.setEnabled(false);
+        spinnerCols.setEnabled(false);
+        spinnerRows.setEnabled(false);
         
         algorithm = algorithms[algoSelector.getSelectedIndex()];
         algorithm.init(grid);
         canvas.repaint();
 
-        int estimatedSteps = ROWS * COLS * 2; 
+        int estimatedSteps = rows * cols * 2; 
         int calculatedDelay = 15000 / estimatedSteps;
         int delay = Math.max(1, Math.min(30, calculatedDelay));
 
@@ -165,9 +227,11 @@ public class MazeVisualizer extends JFrame {
             if (!running) {
                 timer.stop();
                 openEntranceAndExit();
-                btnSolve.setEnabled(true); // Abilita il pulsante a fine animazione
+                btnSolve.setEnabled(true); 
                 btnAnimate.setEnabled(true);
                 btnInstant.setEnabled(true);
+                spinnerCols.setEnabled(true);
+                spinnerRows.setEnabled(true);
                 canvas.repaint();
                 JOptionPane.showMessageDialog(this, "Labirinto Generato con Successo!");
             }
@@ -175,53 +239,41 @@ public class MazeVisualizer extends JFrame {
         timer.start();
     }
 
-    /**
-     * Risolve il labirinto usando l'algoritmo BFS (Breadth-First Search)
-     * partendo da [0][0] fino a [ROWS-1][COLS-1]
-     */
     private void solveMaze() {
         solutionPath.clear();
-        
         Cell start = grid[0][0];
-        Cell end = grid[ROWS - 1][COLS - 1];
+        Cell end = grid[rows - 1][cols - 1];
         
         Queue<Cell> queue = new LinkedList<>();
-        boolean[][] visited = new boolean[ROWS][COLS];
-        Cell[][] parent = new Cell[ROWS][COLS]; // Per ricostruire il cammino a ritroso
+        boolean[][] visited = new boolean[rows][cols];
+        Cell[][] parent = new Cell[rows][cols]; 
         
         queue.add(start);
         visited[0][0] = true;
-        
         boolean found = false;
         
         while (!queue.isEmpty()) {
             Cell curr = queue.poll();
-            
             if (curr == end) {
                 found = true;
                 break;
             }
             
-            // Controlla i 4 vicini possibili basandosi sui muri ABBATTUTI (walls == false)
-            // Nord (indice 0)
             if (!curr.walls[0] && curr.y > 0 && !visited[curr.y - 1][curr.x]) {
                 queue.add(grid[curr.y - 1][curr.x]);
                 visited[curr.y - 1][curr.x] = true;
                 parent[curr.y - 1][curr.x] = curr;
             }
-            // Sud (indice 1)
-            if (!curr.walls[1] && curr.y < ROWS - 1 && !visited[curr.y + 1][curr.x]) {
+            if (!curr.walls[1] && curr.y < rows - 1 && !visited[curr.y + 1][curr.x]) {
                 queue.add(grid[curr.y + 1][curr.x]);
                 visited[curr.y + 1][curr.x] = true;
                 parent[curr.y + 1][curr.x] = curr;
             }
-            // Est (indice 2)
-            if (!curr.walls[2] && curr.x < COLS - 1 && !visited[curr.y][curr.x + 1]) {
+            if (!curr.walls[2] && curr.x < cols - 1 && !visited[curr.y][curr.x + 1]) {
                 queue.add(grid[curr.y][curr.x + 1]);
                 visited[curr.y][curr.x + 1] = true;
                 parent[curr.y][curr.x + 1] = curr;
             }
-            // Ovest (indice 3)
             if (!curr.walls[3] && curr.x > 0 && !visited[curr.y][curr.x - 1]) {
                 queue.add(grid[curr.y][curr.x - 1]);
                 visited[curr.y][curr.x - 1] = true;
@@ -229,11 +281,10 @@ public class MazeVisualizer extends JFrame {
             }
         }
         
-        // Se il percorso è stato trovato, lo ricostruisce partendo dalla fine
         if (found) {
             Cell curr = end;
             while (curr != null) {
-                solutionPath.add(0, curr); // Inserisce in testa per avere l'ordine corretto da start a end
+                solutionPath.add(0, curr);
                 curr = parent[curr.y][curr.x];
             }
         }
