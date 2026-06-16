@@ -1,5 +1,8 @@
+package codice;
+
 import java.util.ArrayList;
 import java.util.List;
+import codice.algoritmi.*;
 
 public class MazeBenchmark {
 

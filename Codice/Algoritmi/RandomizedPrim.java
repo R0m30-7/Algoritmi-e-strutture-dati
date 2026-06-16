@@ -1,3 +1,6 @@
+package codice.algoritmi;
+import codice.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

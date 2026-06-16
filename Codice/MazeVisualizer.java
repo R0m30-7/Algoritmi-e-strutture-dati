@@ -1,7 +1,10 @@
+package codice;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import codice.algoritmi.*;
 
 public class MazeVisualizer extends JFrame {
     private int rows = 30; 
@@ -25,7 +28,7 @@ public class MazeVisualizer extends JFrame {
     private MazeAlgorithm[] algorithms = { 
         new RandomizedDFS(), 
         new RandomizedKruskal(), 
-        new RandomizedPrims(), // Assicurati che il nome della classe coincida (es. RandomizedPrim o RandomizedPrims)
+        new RandomizedPrim(),
         new AldousBroder(),
         new WilsonsAlgorithm(),
         new RecursiveDivision(),

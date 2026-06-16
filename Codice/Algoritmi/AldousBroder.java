@@ -1,3 +1,6 @@
+package codice.algoritmi;
+import codice.*;
+
 import java.util.Random;
 
 public class AldousBroder implements MazeAlgorithm {
