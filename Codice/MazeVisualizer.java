@@ -13,11 +13,13 @@ public class MazeVisualizer extends JFrame {
     // Sostituisci la dichiarazione della variabile d'istanza algoritmica con una combo box:
     private JComboBox<String> algoSelector;
     private MazeAlgorithm[] algorithms = { 
-        new RandomizedDFS(), 
-        new RandomizedKruskal(), 
+        new RandomizedDFS(),
+        new RandomizedKruskal(),
         new RandomizedPrim(),
         new AldousBroder(),
-        new WilsonsAlgorithm()
+        new WilsonsAlgorithm(),
+        new RecursiveDivision(),
+        new EllersAlgorithm()
     };
 
     // Modifica il costruttore di MazeVisualizer:
@@ -45,11 +47,13 @@ public class MazeVisualizer extends JFrame {
         add(canvas, BorderLayout.CENTER);
         
         String[] algoNames = { 
-            "Randomized DFS", 
-            "Randomized Kruskal", 
-            "Randomized Prim", 
-            "Aldous-Broder", 
-            "Wilson's Algorithm" 
+            "Randomized DFS",
+            "Randomized Kruskal",
+            "Randomized Prim",
+            "Aldous-Broder",
+            "Wilson's Algorithm",
+            "Recursive Division",
+            "Eller's Algorithm"
         };
         algoSelector = new JComboBox<>(algoNames);
         

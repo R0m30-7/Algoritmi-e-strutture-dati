@@ -219,6 +219,42 @@
 	$$\mathcal{O}(V^{1.2})$$
 	Questo rende l'algoritmo di Wilson asintoticamente molto più efficiente di Aldous-Broder e di Prim, offrendo al contempo la medesima distribuzione perfettamente uniforme del labirinto finale. Dal punto di vista spaziale, la lista dinamica deputata a memorizzare i nodi della passeggiata corrente richiede nel caso pessimo un'occupazione di memoria pari a $\mathcal{O}(V)$.
 	
+	\subsection{Algoritmi geometrici e a partizione spaziale}
+	A differenza degli approcci basati sui grafi che operano a livello locale di vertice o arco, gli algoritmi geometrici sfruttano la regolarità strutturale della griglia per partizionare lo spazio o per calcolare l'albero di copertura secondo vincoli di riga globali.
+	
+	\subsubsection{Algoritmo di Divisione Ricorsiva}
+	L'algoritmo di Divisione Ricorsiva adotta una filosofia progettuale di tipo \textit{top-down} guidata dal paradigma del \textit{divide et impera}. Il processo si avvia considerando la griglia come un'unica macro-regione interamente priva di barriere interne. 
+	
+	L'esecuzione del singolo passo d'avanzamento si articola sulle seguenti sotto-fasi:
+	\begin{enumerate}
+		\item Viene estratta una regione geometrica dal buffer di elaborazione esplicito. Se le sue dimensioni in pixel logici di cella sono inferiori alla soglia critica di divisione ($w < 2$ o $h < 2$), la regione viene considerata atomica e consolidata.
+		\item Si valuta l'orientamento ottimale del taglio basandosi sul rapporto d'aspetto della sotto-matrice: se l'altezza supera la larghezza il taglio sarà preferenzialmente orizzontale, viceversa sarà verticale.
+		\item Viene eretto un muro continuo che seziona longitudinalmente la regione a una coordinata casuale. Successivamente, viene selezionata in modo uniforme una singola cella lungo la barriera appena eretta in cui praticare un'apertura (foro di transito).
+		\item La separazione genera due nuove sotto-regioni indipendenti, le quali vengono inserite nello stack per essere processate nelle iterazioni successive.
+	\end{enumerate}
+	
+	\subsubsection{Analisi della Complessità Teorica}
+	La scomposizione dello spazio ricalca in modo duale la struttura di un albero binario di decisione. A ogni livello della ricorsione strutturale, l'algoritmo esegue un numero di operazioni lineare rispetto al perimetro della sotto-regione da murare. 
+	Esprimendo la ricorrenza per una griglia quadrata di lato $N$ (dove il numero totale di celle è $|V| = N^2$), si ottiene la relazione di bilancio energetico:
+	$$T(N^2) = 2T\left(\frac{N^2}{2}\right) + \mathcal{O}(N)$$
+	Risolvendo mediante l'applicazione del Teorema Master, si ricava una complessità temporale asintotica pari a:
+	$$\mathcal{O}(V \log V)$$
+	Lo spazio di memoria ausiliario necessario per alloggiare i record geometrici delle regioni all'interno dello stack è limitato dall'altezza massima dell'albero di partizione, che si attesta a $\mathcal{O}(\log V)$.
+	
+	\subsubsection{Algoritmo di Eller}
+	L'algoritmo di Eller rappresenta uno dei vertici più efficienti della generazione procedurale. Esso risolve il problema calcolando l'albero di copertura riga per riga in un unico passaggio sequenziale. Ciascuna cella della riga corrente viene associata a un identificativo numerico di set, il quale mappa in tempo reale la connettività globale del labirinto calcolato fino a quel momento.
+	
+	La logica si sviluppa attraverso due macro-fasi per ogni riga:
+	\begin{enumerate}
+		\item \textbf{Fase Orizzontale:} L'algoritmo esamina ogni coppia di celle adiacenti sulla riga. Se appartengono a set diversi, decide in modo stocastico se abbattere il muro che le separa. In caso di abbattimento, i due set vengono fusi, assegnando a tutti i loro membri il medesimo identificativo. All'ultima riga del labirinto, questa unione viene forzata per ogni coppia avente set disgiunti, garantendo la connettività finale.
+		\item \textbf{Fase Verticale:} Per ciascun set distinto isolato sulla riga corrente, l'algoritmo seleziona casualmente almeno una cella (e potenzialmente più di una) e ne abbatte il muro inferiore (Sud), proiettando la connettività del set sulla riga sottostante. Le celle della riga successiva che non ricevono una connessione verticale vengono inizializzate con un identificativo di set completamente nuovo e vergine.
+	\end{enumerate}
+	
+	\subsubsection{Analisi della Complessità Teorica}
+	L'aspetto più straordinario dell'algoritmo di Eller risiede nella sua efficienza computazionale e spaziale. Per elaborare una singola riga di larghezza $W$, l'algoritmo esegue scansioni lineari sui vettori di stato dei set, impiegando un tempo costante per cella. Di conseguenza, l'intera griglia viene completata eseguendo un'unica passata fissa. La complessità temporale è strettamente lineare:
+	$$\mathcal{O}(V)$$
+	Dal punto di vista della memoria ausiliaria, l'algoritmo non necessita della conoscenza strutturale delle righe passate né di quelle future. Lo spazio richiesto è unicamente quello necessario a immagazzinare il vettore dei set della riga corrente, portando la complessità spaziale a un valore ottimale pari a $\mathcal{O}(\sqrt{V})$ (ovvero lineare rispetto alla sola larghezza della griglia $W$), rendendolo l'algoritmo ideale per la generazione di labirinti di dimensioni virtualmente infinite.
+	
 	\begin{thebibliography}{9}
 		\bibitem{wiki_maze} 
 		Wikipedia contributors, ``Maze generation algorithm,'' \textit{Wikipedia, The Free Encyclopedia}, \url{https://en.wikipedia.org/wiki/Maze_generation_algorithm}.

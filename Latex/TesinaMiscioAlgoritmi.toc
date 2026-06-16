@@ -17,3 +17,8 @@
 \contentsline {subsubsection}{\numberline {4.4.1}Algoritmo di Aldous-Broder}{5}{subsubsection.4.4.1}%
 \contentsline {subsubsection}{\numberline {4.4.2}Algoritmo di Wilson}{5}{subsubsection.4.4.2}%
 \contentsline {subsubsection}{\numberline {4.4.3}Analisi della Complessità Teorica}{6}{subsubsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.5}Algoritmi geometrici e a partizione spaziale}{6}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}Algoritmo di Divisione Ricorsiva}{6}{subsubsection.4.5.1}%
+\contentsline {subsubsection}{\numberline {4.5.2}Analisi della Complessità Teorica}{7}{subsubsection.4.5.2}%
+\contentsline {subsubsection}{\numberline {4.5.3}Algoritmo di Eller}{7}{subsubsection.4.5.3}%
+\contentsline {subsubsection}{\numberline {4.5.4}Analisi della Complessità Teorica}{7}{subsubsection.4.5.4}%
