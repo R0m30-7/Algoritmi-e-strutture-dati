@@ -10,14 +10,14 @@ Una volta decompresso l'archivio della consegna, la disposizione dei file si pre
 
 ```text
 [Cartella Principale]
- ├── tesina.pdf           # Elaborato testuale finale in formato PDF
- ├── README.md            # Questo file con le istruzioni d'uso
- └── codice/              # Pacchetto sorgente Java
-      ├── algoritmi/      # Classi specifiche dei 7 algoritmi di generazione
-      ├── Cell.java       # Rappresentazione della singola cella della griglia
+ ├── TesinaMiscioAlgoritmi.pdf      # Elaborato testuale finale in formato PDF
+ ├── README.md                      # Questo file con le istruzioni d'uso
+ └── codice/                        # Pacchetto sorgente Java
+      ├── algoritmi/                # Classi specifiche dei 7 algoritmi di generazione
+      ├── Cell.java                 # Rappresentazione della singola cella della griglia
       ├── ...
-      ├── MazeVisualizer.java  # Interfaccia Grafica (GUI) e Risolutore
-      └── MazeBenchmark.java   # Infrastruttura di profilazione e Warm-up JIT
+      ├── MazeVisualizer.java       # Interfaccia Grafica (GUI) e Risolutore
+      └── MazeBenchmark.java        # Infrastruttura di profilazione e Warm-up JIT
 ```
 
 ---
@@ -30,7 +30,7 @@ Una volta decompresso l'archivio della consegna, la disposizione dei file si pre
 
 ## 💻 Istruzioni per la Compilazione e l'Esecuzione
 
-Per testare il software, apri una shell di comando (Terminale, Prompt dei comandi o PowerShell) e posizionati nella **cartella principale** del progetto (la directory che contiene il file `tesina.pdf` e la cartella `codice/`).
+Per testare il software, apri una shell di comando (Terminale, Prompt dei comandi o PowerShell) e posizionati nella **cartella principale** del progetto (la directory che contiene il file `TesinaMiscioAlgoritmi.pdf` e la cartella `codice/`).
 
 ### 1. Compilazione dei Sorgenti
 
