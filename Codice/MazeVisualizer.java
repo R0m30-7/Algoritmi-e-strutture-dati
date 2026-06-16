@@ -5,16 +5,15 @@ public class MazeVisualizer extends JFrame {
     private final int ROWS = 30;
     private final int COLS = 30;
     private final int CELL_SIZE = 20;
+    private final int MARGIN = 20; // Margine di sicurezza per non nascondere i bordi
     
     private Cell[][] grid;
     private MazeAlgorithm algorithm;
     private JPanel canvas;
-
-    // Sostituisci la dichiarazione della variabile d'istanza algoritmica con una combo box:
     private JComboBox<String> algoSelector;
     private MazeAlgorithm[] algorithms = { 
-        new RandomizedDFS(),
-        new RandomizedKruskal(),
+        new RandomizedDFS(), 
+        new RandomizedKruskal(), 
         new RandomizedPrim(),
         new AldousBroder(),
         new WilsonsAlgorithm(),
@@ -22,7 +21,6 @@ public class MazeVisualizer extends JFrame {
         new EllersAlgorithm()
     };
 
-    // Modifica il costruttore di MazeVisualizer:
     public MazeVisualizer() {
         setTitle("Generatore di Labirinti - ASD");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -34,23 +32,36 @@ public class MazeVisualizer extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                
+                // Attiva l'antialiasing per linee più pulite
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Sposta l'origine del disegno per creare il margine protettivo all'interfaccia
+                g2d.translate(MARGIN, MARGIN); 
+                
                 for (int y = 0; y < ROWS; y++) {
                     for (int x = 0; x < COLS; x++) {
-                        grid[y][x].draw(g, CELL_SIZE);
+                        grid[y][x].draw(g2d, CELL_SIZE);
                     }
                 }
             }
         };
-        canvas.setPreferredSize(new Dimension(COLS * CELL_SIZE + 1, ROWS * CELL_SIZE + 1));
+        
+        // Dimensione aumentata di (MARGIN * 2) per accogliere la spaziatura protettiva sui 4 lati
+        int canvasWidth = COLS * CELL_SIZE + (MARGIN * 2) + 1;
+        int canvasHeight = ROWS * CELL_SIZE + (MARGIN * 2) + 1;
+        canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
+        canvas.setBackground(Color.WHITE);
         
         setLayout(new BorderLayout());
         add(canvas, BorderLayout.CENTER);
         
         String[] algoNames = { 
-            "Randomized DFS",
-            "Randomized Kruskal",
-            "Randomized Prim",
-            "Aldous-Broder",
+            "Randomized DFS", 
+            "Randomized Kruskal", 
+            "Randomized Prim", 
+            "Aldous-Broder", 
             "Wilson's Algorithm",
             "Recursive Division",
             "Eller's Algorithm"
@@ -72,6 +83,7 @@ public class MazeVisualizer extends JFrame {
             resetGrid();
             algorithm = algorithms[algoSelector.getSelectedIndex()];
             algorithm.generateFully(grid);
+            openEntranceAndExit(); // Abbate i muri perimetrali di inizio e fine
             canvas.repaint();
         });
 
@@ -87,6 +99,18 @@ public class MazeVisualizer extends JFrame {
         }
     }
 
+    /**
+     * Identifica l'inizio (Nord-Ovest) e la fine (Sud-Est) del labirinto
+     * e ne abbatte i rispettivi muri esterni di confine.
+     */
+    private void openEntranceAndExit() {
+        // Ingresso in alto a sinistra (0,0): abbattiamo il muro Ovest (indice 3)
+        grid[0][0].walls[3] = false;
+        
+        // Uscita in basso a destra (ROWS-1, COLS-1): abbattiamo il muro Est (indice 2)
+        grid[ROWS - 1][COLS - 1].walls[2] = false;
+    }
+
     private void startAnimatedGeneration() {
         resetGrid();
         algorithm = algorithms[algoSelector.getSelectedIndex()];
@@ -95,7 +119,7 @@ public class MazeVisualizer extends JFrame {
 
         int estimatedSteps = ROWS * COLS * 2; 
         int calculatedDelay = 15000 / estimatedSteps;
-        int delay = Math.max(1, Math.min(1, calculatedDelay));
+        int delay = Math.max(1, Math.min(30, calculatedDelay));
 
         Timer timer = new Timer(delay, null);
         timer.addActionListener(e -> {
@@ -103,7 +127,9 @@ public class MazeVisualizer extends JFrame {
             canvas.repaint();
             if (!running) {
                 timer.stop();
-                JOptionPane.showMessageDialog(this, "Labirinto Generato!");
+                openEntranceAndExit(); // Apertura dei varchi a fine animazione
+                canvas.repaint();
+                JOptionPane.showMessageDialog(this, "Labirinto Generato con Successo!");
             }
         });
         timer.start();
