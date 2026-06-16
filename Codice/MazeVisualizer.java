@@ -12,7 +12,13 @@ public class MazeVisualizer extends JFrame {
 
     // Sostituisci la dichiarazione della variabile d'istanza algoritmica con una combo box:
     private JComboBox<String> algoSelector;
-    private MazeAlgorithm[] algorithms = { new RandomizedDFS(), new RandomizedKruskal(), new RandomizedPrim() };
+    private MazeAlgorithm[] algorithms = { 
+        new RandomizedDFS(), 
+        new RandomizedKruskal(), 
+        new RandomizedPrim(),
+        new AldousBroder(),
+        new WilsonsAlgorithm()
+    };
 
     // Modifica il costruttore di MazeVisualizer:
     public MazeVisualizer() {
@@ -38,7 +44,13 @@ public class MazeVisualizer extends JFrame {
         setLayout(new BorderLayout());
         add(canvas, BorderLayout.CENTER);
         
-        String[] algoNames = { "Randomized DFS", "Randomized Kruskal", "Randomized Prim" };
+        String[] algoNames = { 
+            "Randomized DFS", 
+            "Randomized Kruskal", 
+            "Randomized Prim", 
+            "Aldous-Broder", 
+            "Wilson's Algorithm" 
+        };
         algoSelector = new JComboBox<>(algoNames);
         
         JButton btnAnimate = new JButton("Generazione Animata");
@@ -79,7 +91,7 @@ public class MazeVisualizer extends JFrame {
 
         int estimatedSteps = ROWS * COLS * 2; 
         int calculatedDelay = 15000 / estimatedSteps;
-        int delay = Math.max(1, Math.min(15, calculatedDelay));
+        int delay = Math.max(1, Math.min(1, calculatedDelay));
 
         Timer timer = new Timer(delay, null);
         timer.addActionListener(e -> {

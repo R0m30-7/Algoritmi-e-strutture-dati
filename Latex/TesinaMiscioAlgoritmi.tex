@@ -190,6 +190,35 @@
 	$$\mathcal{O}(V^2)$$
 	Dal punto di vista spaziale, la frontiera immagazzina al più il perimetro dinamico di crescita dell'albero, occupando in memoria uno spazio delimitato superiormente da $\mathcal{O}(V)$.
 	
+	\subsection{Algoritmi basati su Random Walk}
+	La generazione di un labirinto tramite passeggiate casuali (\textit{Random Walk}) si fonda su principi profondi della teoria delle probabilità e dei processi markoviani. Entrambi gli algoritmi descritti di seguito condividono la proprietà matematica di estrarre un albero di copertura da una distribuzione perfettamente uniforme (\textit{Uniform Spanning Tree}), garantendo che ogni possibile labirinto perfetto compatibile con la griglia iniziale abbia l'esatta stessa probabilità di essere generato.
+	
+	\subsubsection{Algoritmo di Aldous-Broder}
+	L'algoritmo di Aldous-Broder adotta un meccanismo a memoria locale elementare. Partendo da un vertice iniziale arbitrario marcato come visitato, l'algoritmo sceglie a ogni ciclo un vicino geometrico in modo uniforme e casuale. Se il vicino selezionato non è mai stato visitato in precedenza, il muro divisorio tra le due celle viene rimosso e il nuovo nodo viene annesso all'albero. Se il vicino è invece già stato visitato, la passeggiata si sposta semplicemente su di esso senza alterare la struttura dei muri.
+	
+	L'algoritmo è strutturalmente inefficiente a causa del fenomeno probabilistico noto come \textit{Coupon Collector's Problem} (Problema del collezionista di figurine). Nelle fasi iniziali e intermedie, la scoperta di nuove celle avviene con frequenza elevata. Tuttavia, quando la quasi totalità della griglia è stata annessa, la passeggiata casuale spende la maggior parte dei cicli di clock muovendosi all'interno di regioni già esplorate, nel tentativo stocastico di intersecare gli ultimi nodi rimasti isolati.
+	
+	Per questa ragione, la complessità temporale asintotica nel caso pessimo non è limitata superiormente da una funzione polinomiale fissa, ma dipende dal tempo di copertura (\textit{cover time}) del grafo griglia, attestandosi mediamente a:
+	$$\mathcal{O}(V^2)$$
+	con picchi degeneri che surclassano tale limite su topologie sbilanciate. Lo spazio aggiuntivo richiesto è minimale ed equivalente a $\mathcal{O}(1)$ se escluso il dominio della griglia stessa.
+	
+	\subsubsection{Algoritmo di Wilson}
+	L'algoritmo di Wilson ottimizza drasticamente le inefficienze della passeggiata casuale pura introducendo il concetto di \textbf{Loop-Erased Random Walk} (Passeggiata casuale con rimozione dei cicli). La logica separa nettamente lo spazio calpestabile in due stati temporanei: le celle incluse nell'albero consolidato e le celle non ancora esplorate.
+	
+	La procedura operativa è così ripartita:
+	\begin{enumerate}
+		\item Viene selezionata una cella casuale originaria e inserita permanentemente nell'albero di copertura.
+		\item Si sceglie una cella arbitraria al di fuori dell'albero e si avvia una passeggiata casuale standard.
+		\item Durante il cammino, se la traiettoria interseca un nodo già appartenente alla passeggiata corrente, si è in presenza di un ciclo (\textit{loop}). L'algoritmo tronca immediatamente la struttura eliminando tutti i passi logici compiuti all'interno del ciclo, prevenendo la formazione di cammini multipli.
+		\item Quando la passeggiata casuale interseca una cella appartenente all'albero consolidato, il cammino corrente viene interrotto: tutti i muri lungo la traiettoria purificata dai cicli vengono abbattuti e l'intero percorso si fonde istantaneamente con l'albero.
+	\end{enumerate}
+	
+	\subsubsection{Analisi della Complessità Teorica}
+	Sebbene una singola passeggiata possa teoricamente durare a lungo prima di intersecare l'albero, la rimozione sistematica dei cicli fa sì che il tempo necessario per connettere un blocco di nodi dipenda dal tempo di transito medio e non dal tempo di copertura totale del grafo. 
+	La complessità temporale media sui grafi griglia bidimensionali regolari si attesta a:
+	$$\mathcal{O}(V^{1.2})$$
+	Questo rende l'algoritmo di Wilson asintoticamente molto più efficiente di Aldous-Broder e di Prim, offrendo al contempo la medesima distribuzione perfettamente uniforme del labirinto finale. Dal punto di vista spaziale, la lista dinamica deputata a memorizzare i nodi della passeggiata corrente richiede nel caso pessimo un'occupazione di memoria pari a $\mathcal{O}(V)$.
+	
 	\begin{thebibliography}{9}
 		\bibitem{wiki_maze} 
 		Wikipedia contributors, ``Maze generation algorithm,'' \textit{Wikipedia, The Free Encyclopedia}, \url{https://en.wikipedia.org/wiki/Maze_generation_algorithm}.
