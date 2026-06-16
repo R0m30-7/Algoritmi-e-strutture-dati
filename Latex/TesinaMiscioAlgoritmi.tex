@@ -1,0 +1,107 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- Pacchetti di Base ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage[left=2.5cm, right=2.5cm, top=3cm, bottom=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+
+% Per l'uso del comando \DTMcurrenttime
+\usepackage[it-IT]{datetime2}
+
+% --- Pacchetto per link ---
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+\usepackage[normalem]{ulem} % Pacchetto necessario per una sottolineatura pulita
+
+\hypersetup{
+	colorlinks=true,   % Attiva il colore dei link (impedisce i riquadri colorati)
+	linkcolor=black,   % Rende i link dell'indice NERI e identici al testo normale
+	urlcolor=black     % Rende i link esterni NERI di base
+}
+
+% Creiamo un nuovo comando chiamato \hrefsub{} per i link nel testo.
+% Questo comando inserisce il link nero e lo sottolinea automaticamente.
+\newcommand{\hrefsub}[2]{\href{#1}{\uline{#2}}}
+
+% --- Pacchetti aggiuntivi necessari ---
+\usepackage{amsmath}  % Fondamentale per l'ambiente 'cases' (la graffa)
+\usepackage{amstext}  % Permette di usare il comando \text{} per scrivere testo normale
+\usepackage{enumitem} % Per la numerazione che parte da 01
+
+% Path per le immagini
+\graphicspath{{images/}}
+
+\begin{document}
+	
+	% --- 1. PRIMA PAGINA (TITOLO) ---
+	\begin{titlepage}
+		\centering
+		
+		% Logo dell'Università (come da richiesta)
+		\includegraphics[width=0.34\textwidth]{logo-unipg}
+		\vspace{0.6cm}
+		
+		% Intestazione Università e Dipartimento (in Maiuscoletto)
+		{\scshape\large Università degli Studi di Perugia} \\
+		\vspace{0.15cm}
+		{\scshape\large Dipartimento di Ingegneria} \\
+		
+		\vspace{0.6cm}
+		\hrule height 0.4pt % Linea sottile orizzontale
+		\vspace{2.2cm}
+		
+		% Tipologia di elaborato
+		{\large Tesina Finale di} \\
+		\vspace{0.25cm}
+		% Corso di insegnamento
+		{\Large\bfseries Algoritmi e Strutture Dati} \\
+		\vspace{0.2cm}
+		% Corso di Laurea ed Anno Accademico
+		{\normalsize Corso di Laurea in Ingegneria Informatica ed Elettronica --- A.A. 2025--2026} \\
+		
+		\vspace{3.2cm}
+		
+		% Titolo dell'elaborato (spezzato correttamente su più righe)
+		{\LARGE\bfseries Titolo} \\
+		\vspace{0.3cm}
+		{\LARGE\bfseries molto} \\
+		\vspace{0.3cm}
+		{\LARGE\bfseries lungo} \\
+		
+		\vfill % Spinge tutto il blocco successivo verso il fondo della pagina
+		
+		% Sezione Docente e Studente (allineamento orizzontale tramite minipage)
+		\noindent
+		\begin{minipage}[t]{0.45\textwidth}
+			{\large\itshape Docente}\\
+			\vspace{0.15cm}
+			{\large Prof. Emilio Di Giacomo}
+		\end{minipage}
+		\hfill
+		\begin{minipage}[t]{0.45\textwidth}
+			\raggedleft
+			{\large\itshape Studente}\\
+			\vspace{0.15cm}
+			{\large\bfseries Romeo Miscio} \\
+			\vspace{0.10cm}
+			{\normalsize Matricola: 364672}
+			\vspace{2cm}	% Togliere questo prima di consegnare
+		\end{minipage}
+		{\large Ultimo aggiornamento: \today}	% Togliere questo prima di consegnare
+	\end{titlepage}
+	
+	\clearpage
+	
+	% --- 2. PAGINA DELL'INDICE ---
+	% Anche qui la numerazione rimane nascosta
+	\tableofcontents
+	\clearpage            
+	
+	% --- 3. INIZIO CORPO DEL DOCUMENTO ---
+	% Da questa pagina in poi inizia la numerazione standard (1, 2, 3...)
+	\pagenumbering{arabic}
+	
+	\section{Sezione puzzolente}
+\end{document}
