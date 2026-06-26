@@ -121,14 +121,14 @@
 		\item \textbf{Alinearità (Assenza di cicli):} Il sottografo $G'$ deve essere aciclico. La presenza di un ciclo implicherebbe l'esistenza di cammini multipli per connettere due nodi qualsiasi, riducendo la complessità intrinseca del labirinto e violando la definizione classica di ``labirinto perfetto''.
 	\end{enumerate}
 	
-	Dalle proprietà fondamentali della teoria dei grafi, un sottografo di $G$ che contiene tutti i vertici $V$, è connesso ed è privo di cicli è per definizione un \textbf{Albero di Copertura} (o \textit{Spanning Tree}). Di conseguenza, l'intero problema della generazione procedurale di labirinti si riduce all'estrazione di uno \textbf{Spanning Tree casuale} partendo dal grafo iniziale della griglia. I muri del labirinto finito saranno costituiti esattamente dal complemento degli archi selezionati, ovvero dall'insieme degli archi esclusi $E \setminus E'$.
+	Dalle proprietà fondamentali della teoria dei grafi, un sottografo di $G$ che contiene tutti i vertici $V$, che sia connesso e che è privo di cicli, per definizione è un \textbf{Albero di Copertura} (o \textit{Spanning Tree}). Di conseguenza, l'intero problema della generazione procedurale di labirinti si riduce all'estrazione di uno \textbf{Spanning Tree casuale} partendo dal grafo iniziale della griglia. I muri del labirinto finito saranno costituiti esattamente dal complemento degli archi selezionati, ovvero dall'insieme degli archi esclusi $E \setminus E'$.
 	
 	\section{Obiettivi del progetto}
-	L'obiettivo principale di questo lavoro di tesi è implementare, analizzare e confrontare sperimentalmente le prestazioni e le caratteristiche topologiche delle principali famiglie di algoritmi per l'estrazione di Spanning Tree casuali presenti in letteratura. 
+	L'obiettivo principale di questo progetto è implementare, analizzare e confrontare sperimentalmente le prestazioni e le caratteristiche topologiche delle principali famiglie di algoritmi per l'estrazione di Spanning Tree casuali. 
 	
-	Nello specifico, la suite software sviluppata in linguaggio Java mira a ricoprire l'intero spettro algoritmico descritto nei requisiti ministeriali, dividendoli per paradigmi di progettazione:
+	Nello specifico, il software sviluppato in linguaggio \texttt{Java} mira a ricoprire l'intero spettro algoritmico descritto nella pagina di Wikipedia \cite{wiki_maze}, dividendoli per tipologia di funzionamento:
 	\begin{itemize}
-		\item \textbf{Algoritmi basati su Tree/Graph Traversal:} Randomized Depth-First Search (Recursive Backtracker) e Randomized Breadth-First Search.
+		\item \textbf{Algoritmi basati su Tree/Graph Traversal:} Randomized Depth-First Search (Recursive Backtracker);
 		\item \textbf{Algoritmi basati su Minimum Spanning Tree adattati:} Algoritmo di Kruskal randomizzato e Algoritmo di Prim modificato.
 		\item \textbf{Algoritmi basati su Random Walk:} Algoritmo di Aldous-Broder e Algoritmo di Wilson.
 		\item \textbf{Algoritmi geometrici o a divisione spaziale:} Algoritmo di Divisione Ricorsiva ed Eller's Algorithm.
@@ -138,7 +138,7 @@
 	
 	\section{Algoritmi implementati}
 	
-	In questo capitolo vengono analizzati in dettaglio i primi tre algoritmi sviluppati per la generazione di labirinti perfetti. Ciascun approccio interpreta il problema dell'estrazione di uno Spanning Tree casuale sfruttando strutture dati e paradigmi logici differenti.
+	In questo capitolo vengono analizzati in dettaglio tutti e sette gli algoritmi sviluppati per la generazione di labirinti perfetti. Ciascun approccio interpreta il problema dell'estrazione di uno Spanning Tree casuale sfruttando strutture dati e paradigmi logici differenti.
 	
 	\subsection{Randomized Depth-First Search (Recursive Backtracker)}
 	L'algoritmo basato sulla ricerca in profondità (DFS) modificata è un approccio classico di tipo \textit{backtracking}. Esso tende a generare labirinti caratterizzati da un basso numero di diramazioni corte e da corridoi marcatamente lunghi e tortuosi (frequenti vicoli ciechi profondi), proprietà topologica nota in letteratura come ``alto fattore di fiumi''.
@@ -276,7 +276,7 @@
 	\subsection{Risultati Sperimentali Globali}
 	Le istanze di input seguono una progressione spaziale quadrata definita dall'insieme di nodi $V$, con un lato della griglia $N \in \{10, 20, 30, 50, 100\}$, coprendo un dominio di calcolo che spazia da un minimo di 100 celle fino a un massimo di 10.000 celle complessive per labirinto.
 	
-	Nella Tabella 4.1 sono racchiusi i dati empirici ricavati dall'esecuzione del benchmark headless, pronti per essere trasposti in diagrammi comparativi di performance.
+	Nella Tabella seguente sono racchiusi i dati empirici ricavati dall'esecuzione del benchmark headless:
 	
 	\begin{table}[h!]
 		\centering
@@ -329,6 +329,7 @@
 	\subsubsection{Andamento dell'algoritmo di Prim}
 	L'algoritmo di \textbf{Prim Modificato} si attesta a $2,4104\ ms$ sulla taglia massima. L'andamento evidenzia chiaramente la natura quadratica $\mathcal{O}(V^2)$ della nostra implementazione a frontiera. Man mano che il labirinto si espande, la dimensione della lista dei muri candidati cresce proporzionalmente al perimetro dell'albero; l'operazione di rimozione casuale dall'array introduce quindi uno slittamento di memoria che ne frena le prestazioni rispetto a Kruskal, confermandone i limiti strutturali descritti in fase teorica.
 	
+	\newpage
 	\begin{thebibliography}{9}
 		\bibitem{wiki_maze} 
 		Wikipedia contributors, ``Maze generation algorithm,'' \textit{Wikipedia, The Free Encyclopedia}, \url{https://en.wikipedia.org/wiki/Maze_generation_algorithm}.
