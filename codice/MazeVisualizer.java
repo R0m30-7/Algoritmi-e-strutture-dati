@@ -21,7 +21,10 @@ public class MazeVisualizer extends JFrame {
     private JSpinner spinnerRows; 
     private JButton btnAnimate;
     private JButton btnInstant;
+    private JButton btnStop; // NUOVO: Pulsante per interrompere
     private JButton btnSolve;
+
+    private javax.swing.Timer animationTimer; // NUOVO: Timer spostato a livello di classe per essere interrotto
 
     private List<Cell> solutionPath = new ArrayList<>();
 
@@ -110,16 +113,20 @@ public class MazeVisualizer extends JFrame {
         
         btnAnimate = new JButton("Generazione Animata");
         btnInstant = new JButton("Generazione Istantanea");
+        btnStop = new JButton("Interrompi"); // NUOVO
+        btnStop.setEnabled(false);           // Disabilitato di default
         btnSolve = new JButton("Risolvi Labirinto");
         btnSolve.setEnabled(false); 
         
         controls.add(btnAnimate);
         controls.add(btnInstant);
+        controls.add(btnStop);  // NUOVO
         controls.add(btnSolve);
         
         add(controls, BorderLayout.SOUTH);
 
         btnAnimate.addActionListener(e -> startAnimatedGeneration());
+        btnStop.addActionListener(e -> stopAnimatedGeneration()); // NUOVO
         
         btnInstant.addActionListener(e -> {
             applyNewDimensions();
@@ -204,32 +211,48 @@ public class MazeVisualizer extends JFrame {
         btnInstant.setEnabled(false);
         spinnerCols.setEnabled(false);
         spinnerRows.setEnabled(false);
+        algoSelector.setEnabled(false); // Blocchiamo anche il selettore per sicurezza
+        btnStop.setEnabled(true);       // Attiviamo il pulsante di stop
         
         algorithm = algorithms[algoSelector.getSelectedIndex()];
         algorithm.init(grid);
         canvas.repaint();
 
-        // SCELTA INGEGNERISTICA: Usiamo un delay fisso e costante (17 ms) per ogni atomo di azione.
-        // Questo evita il collasso dell'interfaccia visiva causato dal differente numero di passi degli algoritmi.
-        int delay = 17; // 1000 / 60 = 16.66
+        int delay = 17; 
 
-        javax.swing.Timer timer = new javax.swing.Timer(delay, null);
-        timer.addActionListener(e -> {
+        animationTimer = new javax.swing.Timer(delay, null);
+        animationTimer.addActionListener(e -> {
             boolean running = algorithm.takeStep(grid);
             canvas.repaint();
             if (!running) {
-                timer.stop();
+                animationTimer.stop();
                 openEntranceAndExit();
-                btnSolve.setEnabled(true); 
-                btnAnimate.setEnabled(true);
-                btnInstant.setEnabled(true);
-                spinnerCols.setEnabled(true);
-                spinnerRows.setEnabled(true);
-                canvas.repaint();
+                setControlsEnabled(true);
                 JOptionPane.showMessageDialog(this, "Labirinto Generato con Successo!");
             }
         });
-        timer.start();
+        animationTimer.start();
+    }
+
+    // NUOVO METODO: Gestisce l'interruzione manuale dell'utente
+    private void stopAnimatedGeneration() {
+        if (animationTimer != null && animationTimer.isRunning()) {
+            animationTimer.stop();
+        }
+        resetGrid(); // Pulisce la griglia parziale riportandola allo stato iniziale
+        setControlsEnabled(false); // Sblocca i controlli standard e spegne il tasto stop
+        canvas.repaint();
+    }
+
+    // NUOVO METODO UTILITY: Evita la duplicazione del codice di sblocco/blocco dei pulsanti
+    private void setControlsEnabled(boolean generationSuccessful) {
+        btnAnimate.setEnabled(true);
+        btnInstant.setEnabled(true);
+        spinnerCols.setEnabled(true);
+        spinnerRows.setEnabled(true);
+        algoSelector.setEnabled(true);
+        btnStop.setEnabled(false); // Disattiviamo lo stop visto che l'animazione non è in corso
+        btnSolve.setEnabled(generationSuccessful); // Attivo solo se il labirinto è completo
     }
 
     private void solveMaze() {
