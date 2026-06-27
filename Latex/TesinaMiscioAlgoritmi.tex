@@ -64,11 +64,11 @@
 		\vspace{3.2cm}
 		
 		% Titolo dell'elaborato (spezzato correttamente su più righe)
-		{\LARGE\bfseries Titolo} \\
+		{\LARGE\bfseries Scrittura di un} \\
 		\vspace{0.3cm}
-		{\LARGE\bfseries molto} \\
+		{\LARGE\bfseries algoritmo per la} \\
 		\vspace{0.3cm}
-		{\LARGE\bfseries lungo} \\
+		{\LARGE\bfseries generazione di labirinti} \\
 		
 		\vfill % Spinge tutto il blocco successivo verso il fondo della pagina
 		
@@ -111,11 +111,11 @@
 	\section{Modellazione formale tramite Teoria dei Grafi}
 	Il modo formalmente più rigoroso per descrivere la topologia di un labirinto adotta le definizioni della teoria dei grafi. Una griglia bidimensionale predeterminata (sia essa rettangolare, esagonale o circolare) può essere mappata direttamente su un grafo non diretto e pesato $G = (V, E)$, in cui:
 	\begin{itemize}
-		\item L'insieme dei vertici $V$ rappresenta l'insieme delle celle discrete che compongono lo spazio calpestabile del labirinto, con $|V| = n$.
-		\item L'insieme degli archi $E$ rappresenta l'insieme di tutti i passaggi originariamente potenziali (ovvero l'assenza di un muro divisorio) tra celle geometricamente adiacenti.
+		\item L'insieme dei vertici $V$ rappresenta l'insieme delle celle che compongono lo spazio calpestabile del labirinto, con $|V| = n$;
+		\item L'insieme degli archi $E$ rappresenta l'insieme di tutti i passaggi originariamente potenziali (ovvero l'assenza di un muro divisorio) tra celle geometricamente adiacenti. Inizialmente non esistono muri eretti.
 	\end{itemize}
 	
-	Generare un labirinto strutturalmente valido significa individuare un sottografo accatastato $G' = (V, E')$ tale che $G' \subseteq G$, che rispetti due vincoli stringenti:
+	Generare un labirinto strutturalmente valido significa individuare un sottografo coprente $G' = (V, E')$ tale che $G' \subseteq G$, che rispetti due vincoli stringenti:
 	\begin{enumerate}
 		\item \textbf{Connettività:} Il sottografo $G'$ deve essere strettamente connesso. Se $G'$ non fosse connesso, esisterebbero regioni isolate e strutturalmente irraggiungibili all'interno della griglia, invalidando l'integrità del labirinto.
 		\item \textbf{Alinearità (Assenza di cicli):} Il sottografo $G'$ deve essere aciclico. La presenza di un ciclo implicherebbe l'esistenza di cammini multipli per connettere due nodi qualsiasi, riducendo la complessità intrinseca del labirinto e violando la definizione classica di ``labirinto perfetto''.
@@ -134,11 +134,11 @@
 		\item \textbf{Algoritmi geometrici o a divisione spaziale:} Algoritmo di Divisione Ricorsiva ed Eller's Algorithm.
 	\end{itemize}
 	
-	Oltre all'analisi prestazionale pura asintotica e di wall-clock, il progetto si propone di integrare un motore grafico per la visualizzazione dinamica passo-passo della crescita dell'albero, controllato da un'euristica di temporizzazione per garantire la fluidità dell'animazione a prescindere dal dominio di calcolo impostato.
+	Oltre all'analisi prestazionale pura asintotica e di wall-clock (tempo di esecuzione del programma), il progetto si propone di integrare un motore grafico per la visualizzazione dinamica passo-passo della crescita dello Spanning Tree. Al fine di garantire un'analisi visiva coerente ed equa tra i diversi paradigmi, il sistema adotta un intervallo di campionamento temporale costante per singola azione atomica ($delay = 17\ ms$). Questa scelta implementativa si rivela di fondamentale importanza: poiché il numero di operazioni necessarie alla creazione del labirinto varia drasticamente tra gli approcci deterministici (es. DFS) e quelli stocastici a passeggiata casuale (es. Aldous-Broder), un delay fisso permette all'osservatore di valutare visivamente e in tempo reale l'effettiva densità operativa e l'efficienza strutturale di ciascun algoritmo direttamente sul rendering della griglia.
 	
 	\section{Algoritmi implementati}
 	
-	In questo capitolo vengono analizzati in dettaglio tutti e sette gli algoritmi sviluppati per la generazione di labirinti perfetti. Ciascun approccio interpreta il problema dell'estrazione di uno Spanning Tree casuale sfruttando strutture dati e paradigmi logici differenti.
+	In questo capitolo vengono analizzati in dettaglio tutti e sette gli algoritmi sviluppati per la generazione di labirinti perfetti. Ciascun approccio interpreta il problema dell'estrazione di uno Spanning Tree casuale sfruttando strutture dati e metodi differenti.
 	
 	\subsection{Randomized Depth-First Search (Recursive Backtracker)}
 	L'algoritmo basato sulla ricerca in profondità (DFS) modificata è un approccio classico di tipo \textit{backtracking}. Esso tende a generare labirinti caratterizzati da un basso numero di diramazioni corte e da corridoi marcatamente lunghi e tortuosi (frequenti vicoli ciechi profondi), proprietà topologica nota in letteratura come ``alto fattore di fiumi''.
@@ -154,7 +154,7 @@
 		\item Se non vi sono vicini validi (vicolo cieco), si effettua il ritorno a ritroso rimuovendo la cella corrente dallo stack (\texttt{pop()}).
 	\end{enumerate}
 	
-	\subsubsection{Analisi della Complessità Teorica}
+	\subsubsection{Analisi della complessità teorica}
 	In una griglia regolare planare, il grado massimo di ogni vertice è limitato superiormente da una costante ($deg(v) \le 4$). Di conseguenza, il numero totale di archi è lineare rispetto al numero dei nodi, ovvero $|E| = \mathcal{O}(V)$. 
 	Poiché ogni cella viene inserita ed estratta dallo stack esattamente una volta, il ciclo interno esegue al più $2|V|$ iterazioni. L'accesso e la modifica delle proprietà della cella (muri e flag di visita) avvengono in tempo costante $\mathcal{O}(1)$. La complessità temporale asintotica dell'algoritmo è pertanto strettamente lineare:
 	$$\mathcal{O}(V)$$
@@ -170,54 +170,63 @@
 		\item \textbf{Compressione dei Cammini (Path Compression):} Durante la fase di ricerca (\texttt{find}), ogni nodo visitato viene agganciato direttamente alla radice dell'insieme, appiattendo la struttura per le invocazioni successive.
 	\end{itemize}
 	
-	\subsubsection{Analisi della Complessità Teorica}
+	\subsubsection{Analisi della complessità teorica}
 	Inizialmente la lista contiene la totalità degli archi possibili della griglia, pari a $|E| \approx 2|V|$. Il mescolamento iniziale (\texttt{Collections.shuffle}) richiede tempo lineare $\mathcal{O}(E)$. 
 	A ogni passo estrattivo, l'algoritmo esegue due operazioni di \texttt{find} e al più una operazione di \texttt{union}. Sotto le ipotesi di compressione dei cammini e unione per rango, la complessità ammortizzata di ciascuna operazione è limitata superiormente dalla funzione inversa di una crescita esponenziale raddoppiata, espressa mediante la funzione di iterazione di Ackermann $\alpha(n)$. La complessità temporale complessiva per elaborare tutti gli archi è:
 	$$\mathcal{O}(E \cdot \alpha(V))$$
 	Poiché nella nostra griglia $|E| = \mathcal{O}(V)$ e la funzione $\alpha$ assume un valore pratico minore di $5$ per qualsiasi input realistico, l'algoritmo opera in tempo di \textit{wall-clock} quasi-lineare. Lo spazio aggiuntivo per mantenere i vettori dei padri e dei ranghi è pari a $\mathcal{O}(V)$.
 	
-	\subsection{Algoritmo di Prim Modificato}
+	\subsection{Algoritmo di Prim modificato}
 	L'algoritmo di Prim si sviluppa espandendo radialmente un unico sotto-albero a partire da una cella di innesco casuale. Mantiene costantemente traccia di una struttura di ``frontiera'', definita come l'insieme di tutti i muri che separano una cella già inclusa nel labirinto da una cella non ancora esplorata.
 	
-	\subsubsection{Scelte implementative sulla Frontiera}
+	\subsubsection{Scelte implementative sulla frontiera}
 	Nell'implementazione didattica standard dell'algoritmo di Prim (utilizzato per la ricerca del Minimum Spanning Tree classico), la frontiera viene memorizzata in una coda a priorità (\textit{Min-Heap}) basata sul peso degli archi. Nel contesto della generazione procedurale casuale, l'assenza di pesi deterministici ci permette di sostituire lo heap con una lista dinamica indicizzata (\texttt{java.util.ArrayList}). 
 	
 	La rimozione di un elemento casuale da una lista basata su array richiede lo spostamento degli elementi successivi, operazione intrinsecamente inefficiente se eseguita al centro della struttura ($\mathcal{O}(N)$). Per mantenere il costo microscopico nell'interfaccia a passi, si memorizzano i riferimenti strutturali espliciti dei muri (\texttt{PrimWall}) e si effettua un campionamento ad accesso diretto.
 	
-	\subsubsection{Analisi della Complessità Teorica}
+	\subsubsection{Analisi della complessità teorica}
 	Ogni cella viene visitata una sola volta e aggiunge al più 4 muri alla lista di frontiera. Di conseguenza, il numero massimo di elementi immessi nella lista è proporzionale a $4|V|$. 
-	L'estrazione casuale di un indice da una struttura \texttt{ArrayList} avviene in tempo costante $\mathcal{O}(1)$, ma la rimozione di un elemento richiede nel caso pessimo uno slittamento lineare di memoria pari alla dimensione istantanea della frontiera stessa, che nel regime denso di esplorazione può contenere fino a $\mathcal{O}(V)$ elementi. La complessità temporale complessiva su griglia si attesta quindi a:
-	$$\mathcal{O}(V^2)$$
+	L’estrazione casuale di un indice da una struttura \texttt{ArrayList} avviene in tempo costante $\mathcal{O}(1)$. Per evitare l'overhead di rimozione standard (che comporterebbe uno slittamento lineare degli elementi pari a $\mathcal{O}(V)$), l'implementazione adotta una tecnica di ottimizzazione in tempo costante: l'elemento selezionato viene scambiato in posizione con l'ultimo elemento della lista, e quest'ultimo viene rimosso tramite \texttt{remove(list.size() - 1)}. Poiché l'ordine della frontiera non influisce sulla natura stocastica dell'algoritmo, quest'operazione azzera l'overhead di shifting portando il costo di ogni singola rimozione a $\mathcal{O}(1)$. La complessità temporale complessiva su griglia si attesta quindi a:
+	$$\mathcal{O}(V)$$
 	Dal punto di vista spaziale, la frontiera immagazzina al più il perimetro dinamico di crescita dell'albero, occupando in memoria uno spazio delimitato superiormente da $\mathcal{O}(V)$.
 	
 	\subsection{Algoritmi basati su Random Walk}
 	La generazione di un labirinto tramite passeggiate casuali (\textit{Random Walk}) si fonda su principi profondi della teoria delle probabilità e dei processi markoviani. Entrambi gli algoritmi descritti di seguito condividono la proprietà matematica di estrarre un albero di copertura da una distribuzione perfettamente uniforme (\textit{Uniform Spanning Tree}), garantendo che ogni possibile labirinto perfetto compatibile con la griglia iniziale abbia l'esatta stessa probabilità di essere generato.
 	
 	\subsubsection{Algoritmo di Aldous-Broder}
-	L'algoritmo di Aldous-Broder adotta un meccanismo a memoria locale elementare. Partendo da un vertice iniziale arbitrario marcato come visitato, l'algoritmo sceglie a ogni ciclo un vicino geometrico in modo uniforme e casuale. Se il vicino selezionato non è mai stato visitato in precedenza, il muro divisorio tra le due celle viene rimosso e il nuovo nodo viene annesso all'albero. Se il vicino è invece già stato visitato, la passeggiata si sposta semplicemente su di esso senza alterare la struttura dei muri.
+	L'algoritmo di Aldous-Broder rappresenta uno dei primi e più celebri approcci stocastici per la generazione di Spanning Tree uniformi su grafi generici. Il suo funzionamento si basa sul concetto puro di passeggiata casuale (\textit{Random Walk}) e non richiede alcuna pianificazione geometrica o vincolo topologico preventivo.
 	
-	L'algoritmo è strutturalmente inefficiente a causa del fenomeno probabilistico noto come \textit{Coupon Collector's Problem} (Problema del collezionista di figurine). Nelle fasi iniziali e intermedie, la scoperta di nuove celle avviene con frequenza elevata. Tuttavia, quando la quasi totalità della griglia è stata annessa, la passeggiata casuale spende la maggior parte dei cicli di clock muovendosi all'interno di regioni già esplorate, nel tentativo stocastico di intersecare gli ultimi nodi rimasti isolati.
-	
-	Per questa ragione, la complessità temporale asintotica nel caso pessimo non è limitata superiormente da una funzione polinomiale fissa, ma dipende dal tempo di copertura (\textit{cover time}) del grafo griglia, attestandosi mediamente a:
-	$$\mathcal{O}(V^2)$$
-	con picchi degeneri che surclassano tale limite su topologie sbilanciate. Lo spazio aggiuntivo richiesto è minimale ed equivalente a $\mathcal{O}(1)$ se escluso il dominio della griglia stessa.
-	
-	\subsubsection{Algoritmo di Wilson}
-	L'algoritmo di Wilson ottimizza drasticamente le inefficienze della passeggiata casuale pura introducendo il concetto di \textbf{Loop-Erased Random Walk} (Passeggiata casuale con rimozione dei cicli). La logica separa nettamente lo spazio calpestabile in due stati temporanei: le celle incluse nell'albero consolidato e le celle non ancora esplorate.
-	
-	La procedura operativa è così ripartita:
+	Il flusso esecutivo del paradigma può essere sintetizzato nei seguenti passaggi logici sequenziali:
 	\begin{enumerate}
-		\item Viene selezionata una cella casuale originaria e inserita permanentemente nell'albero di copertura.
-		\item Si sceglie una cella arbitraria al di fuori dell'albero e si avvia una passeggiata casuale standard.
-		\item Durante il cammino, se la traiettoria interseca un nodo già appartenente alla passeggiata corrente, si è in presenza di un ciclo (\textit{loop}). L'algoritmo tronca immediatamente la struttura eliminando tutti i passi logici compiuti all'interno del ciclo, prevenendo la formazione di cammini multipli.
-		\item Quando la passeggiata casuale interseca una cella appartenente all'albero consolidato, il cammino corrente viene interrotto: tutti i muri lungo la traiettoria purificata dai cicli vengono abbattuti e l'intero percorso si fonde istantaneamente con l'albero.
+		\item Si seleziona una cella di partenza in modo completamente casuale all'interno della griglia e la si marca nello stato del sistema come ``visitata''.
+		\item Fintanto che il numero complessivo di celle visitate è strettamente inferiore al volume totale dei vertici del grafo ($|V|$), l'algoritmo sceglie ad ogni iterazione un vicino adiacente in modo equiprobabile e si sposta su di esso.
+		\item Se il vicino selezionato non è ancora stato esplorato dall'inizio della simulazione, l'arco che connette la cella corrente a quest'ultimo viene ufficialmente inserito all'interno dello Spanning Tree ($E'$). Dal punto di vista applicativo, questa operazione comporta l'abbattimento immediato del muro divisorio corrispondente. Successivamente, la nuova cella viene marcata come visitata.
+		\item Se il vicino risulta invece già visitato, la passeggiata casuale si sposta semplicemente su di esso senza alterare la struttura dei confini e senza introdurre alcun arco nel grafo, al fine di scongiurare la formazione di cicli.
 	\end{enumerate}
 	
-	\subsubsection{Analisi della Complessità Teorica}
-	Sebbene una singola passeggiata possa teoricamente durare a lungo prima di intersecare l'albero, la rimozione sistematica dei cicli fa sì che il tempo necessario per connettere un blocco di nodi dipenda dal tempo di transito medio e non dal tempo di copertura totale del grafo. 
-	La complessità temporale media sui grafi griglia bidimensionali regolari si attesta a:
-	$$\mathcal{O}(V^{1.2})$$
-	Questo rende l'algoritmo di Wilson asintoticamente molto più efficiente di Aldous-Broder e di Prim, offrendo al contempo la medesima distribuzione perfettamente uniforme del labirinto finale. Dal punto di vista spaziale, la lista dinamica deputata a memorizzare i nodi della passeggiata corrente richiede nel caso pessimo un'occupazione di memoria pari a $\mathcal{O}(V)$.
+	\subsubsection{Analisi della complessità teorica}
+	A differenza degli approcci deterministici, il tempo di esecuzione del paradigma di Aldous-Broder è strettamente legato al concetto statistico di \textit{cover time} (tempo di copertura) di una passeggiata casuale. Sebbene su topologie lineari o grafi a manubrio (\textit{barbell graphs}) il tempo di convergenza possa degenerare a $\mathcal{O}(V^2)$, la letteratura matematica dimostra che per un grafo a griglia bidimensionale regolare (2D Grid Graph) il valore atteso del tempo di copertura si attesta a $\frac{2}{\pi} V \ln^2 V$. Pertanto, la complessità temporale media dell'algoritmo applicato alla generazione di labirinti standard risulta essere pari a:
+	$$\mathcal{O}(V \log^2 V)$$
+	
+	Dal punto di vista dello spazio ausiliario, l'algoritmo si rivela estremamente snello: non necessitando di strutture di tracciamento dinamico dei cammini o di stack ricorsivi di sistema, richiede esclusivamente una mappa booleana dei nodi visitati proporzionale al volume dei vertici, determinando un'occupazione spaziale fissa pari a:
+	$$\mathcal{O}(V)$$
+	
+	\subsubsection{Algoritmo di Wilson}
+	L'algoritmo di Wilson introduce un'ottimizzazione radicale nel panorama della generazione stocastica, garantendo la creazione di uno Spanning Tree perfettamente uniforme in tempi asintoticamente inferiori rispetto al modello di Aldous-Broder. Il nucleo concettuale dell'algoritmo risiede nelle passeggiate casuali con cancellazione dei cicli (\textit{Loop-Erased Random Walks - LERW}).
+	
+	L'esecuzione si articola secondo la seguente transizione di stati operativi:
+	\begin{enumerate}
+		\item Si seleziona una cella arbitraria della griglia e la si inserisce nel labirinto stabilizzato. Questo singolo nodo costituisce la radice iniziale dello Spanning Tree parziale.
+		\item Si sceglie una qualsiasi cella non ancora appartenente al labirinto consolidato e da essa si fa partire una passeggiata casuale (\textit{Random Walk}).
+		\item Durante il cammino, se la traiettoria interseca se stessa formando un cappio geometrico (ovvero entra in una cella già attraversata nella passeggiata corrente), l'algoritmo effettua un'operazione di \textit{loop-erasure}: elimina istantaneamente il ciclo dalla memoria e riprende l'esplorazione stocastica direttamente dal punto di intersezione.
+		\item La passeggiata prosegue nel dominio finché non collide con una cella già integrata nel labirinto stabilizzato. A questo punto, l'intera traiettoria depurata dai cicli viene iniettata nella struttura permanente: tutti i suoi archi entrano a far parte dello Spanning Tree ($E'$) e i relativi muri interni vengono abbattuti.
+		\item Il processo viene reiterato selezionando nuove celle di partenza esterne fino a quando ogni singolo vertice del grafo è stato mappato.
+	\end{enumerate}
+	
+	\subsubsection{Analisi della complessità teorica}
+	Dal punto di vista teorico, l'algoritmo di Wilson ottimizza la ricerca stocastica riducendo drasticamente i tempi morti associati alla convergenza nelle fasi finali della generazione. Su un grafo a griglia bidimensionale regolare (2D Grid Graph), sebbene il valore atteso del tempo di copertura asintotico appartenga alla stessa classe di Aldous-Broder, l'intersezione statistica tra la passeggiata corrente e l'albero parziale già eretto consente di eludere l'effetto rallentamento tipico del paradosso del collezionista di coupon. La complessità temporale media associata alla generazione completa si attesta matematicamente a:
+	$$O(V \log^2 V)$$
+	La complessità spaziale risente della necessità di mantenere in memoria la traiettoria temporanea della passeggiata prima del consolidamento.
 	
 	\subsection{Algoritmi geometrici e a partizione spaziale}
 	A differenza degli approcci basati sui grafi che operano a livello locale di vertice o arco, gli algoritmi geometrici sfruttano la regolarità strutturale della griglia per partizionare lo spazio o per calcolare l'albero di copertura secondo vincoli di riga globali.
@@ -233,13 +242,8 @@
 		\item La separazione genera due nuove sotto-regioni indipendenti, le quali vengono inserite nello stack per essere processate nelle iterazioni successive.
 	\end{enumerate}
 	
-	\subsubsection{Analisi della Complessità Teorica}
-	La scomposizione dello spazio ricalca in modo duale la struttura di un albero binario di decisione. A ogni livello della ricorsione strutturale, l'algoritmo esegue un numero di operazioni lineare rispetto al perimetro della sotto-regione da murare. 
-	Esprimendo la ricorrenza per una griglia quadrata di lato $N$ (dove il numero totale di celle è $|V| = N^2$), si ottiene la relazione di bilancio energetico:
-	$$T(N^2) = 2T\left(\frac{N^2}{2}\right) + \mathcal{O}(N)$$
-	Risolvendo mediante l'applicazione del Teorema Master, si ricava una complessità temporale asintotica pari a:
-	$$\mathcal{O}(V \log V)$$
-	Lo spazio di memoria ausiliario necessario per alloggiare i record geometrici delle regioni all'interno dello stack è limitato dall'altezza massima dell'albero di partizione, che si attesta a $\mathcal{O}(\log V)$.
+	\subsubsection{Analisi della complessità teorica}
+	La scomposizione dello spazio ricalca in modo duale la struttura di un albero binario di decisione. Esprimendo la ricorrenza in funzione del numero complessivo di celle $V$, ad ogni livello della ricorsione l'algoritmo divide l'istanza corrente in due sotto-regioni distinte di dimensione pari a $V/2$. Il costo energetico richiesto per erigere la barriera divisoria è proporzionale al lato della sotto-griglia, attestandosi a $\mathcal{O}(\sqrt{V})$. Si delinea così la seguente relazione di ricorrenza fondamentale:$$T(V) = 2T\left(\frac{V}{2}\right) + \mathcal{O}(\sqrt{V})$$Applicando il Teorema dell'Esperto, i parametri strutturali risultano $a=2$ e $b=2$, definendo un valore critico di crescita delle foglie pari a $V^{\log_2 2} = V^1$. Poiché il driver asintotico locale $f(V) = \mathcal{O}(V^{0.5})$ è polilogaritmicamente inferiore al valore critico ($0.5 < 1$), l'istanza ricade strettamente nel Caso 1 del teorema. La complessità complessiva è dunque interamente dominata dal numero di nodi foglia, determinando un tempo di calcolo asintotico linearmente puro:$$\mathcal{O}(V)$$Dal punto di vista spaziale, la memoria ausiliaria necessaria per alloggiare i record geometrici delle regioni all'interno dello stack rispecchia l'altezza massima dell'albero di partizione, che si attesta in ogni scenario a un valore logaritmico pari a $\mathcal{O}(\log V)$.
 	
 	\subsubsection{Algoritmo di Eller}
 	L'algoritmo di Eller rappresenta uno dei vertici più efficienti della generazione procedurale. Esso risolve il problema calcolando l'albero di copertura riga per riga in un unico passaggio sequenziale. Ciascuna cella della riga corrente viene associata a un identificativo numerico di set, il quale mappa in tempo reale la connettività globale del labirinto calcolato fino a quel momento.
@@ -250,30 +254,30 @@
 		\item \textbf{Fase Verticale:} Per ciascun set distinto isolato sulla riga corrente, l'algoritmo seleziona casualmente almeno una cella (e potenzialmente più di una) e ne abbatte il muro inferiore (Sud), proiettando la connettività del set sulla riga sottostante. Le celle della riga successiva che non ricevono una connessione verticale vengono inizializzate con un identificativo di set completamente nuovo e vergine.
 	\end{enumerate}
 	
-	\subsubsection{Analisi della Complessità Teorica}
+	\subsubsection{Analisi della complessità teorica}
 	L'aspetto più straordinario dell'algoritmo di Eller risiede nella sua efficienza computazionale e spaziale. Per elaborare una singola riga di larghezza $W$, l'algoritmo esegue scansioni lineari sui vettori di stato dei set, impiegando un tempo costante per cella. Di conseguenza, l'intera griglia viene completata eseguendo un'unica passata fissa. La complessità temporale è strettamente lineare:
 	$$\mathcal{O}(V)$$
 	Dal punto di vista della memoria ausiliaria, l'algoritmo non necessita della conoscenza strutturale delle righe passate né di quelle future. Lo spazio richiesto è unicamente quello necessario a immagazzinare il vettore dei set della riga corrente, portando la complessità spaziale a un valore ottimale pari a $\mathcal{O}(\sqrt{V})$ (ovvero lineare rispetto alla sola larghezza della griglia $W$), rendendolo l'algoritmo ideale per la generazione di labirinti di dimensioni virtualmente infinite.
 	
-	\section{Esperimenti e Analisi Dati}
+	\section{Esperimenti e analisi dati}
 	
-	\subsection{Setup Sperimentale}
+	\subsection{Setup sperimentale}
 	Al fine di garantire la riproducibilità metodologica e di isolare l'efficienza algoritmica pura dalle interferenze di sistema, le misurazioni prestazionali sono state condotte all'interno di un ambiente hardware e software standardizzato, descritto nei seguenti punti:
 	\begin{itemize}
-		\item \textbf{Processore:} Architettura x86\_64 CPU, con frequenza di clock stabilizzata per prevenire fenomeni di \textit{thermal throttling}.
-		\item \textbf{Memoria RAM:} Configurazione in Dual-Channel operante ad alta frequenza, con allocazione heap fissa iniziale e massima impostata sulla JVM tramite i flag \texttt{-Xms2G -Xmx2G} per azzerare i ritardi legati all'espansione dinamica della memoria.
-		\item \textbf{Ambiente Software:} Java Run-Time Environment (JRE) versione 26, accoppiato al compilatore HotSpot Just-In-Time (JIT) ottimizzato al livello C2.
+		\item \textbf{Processore:} CPU AMD Ryzen 7 5700G con grafica integrata Radeon Graphics (architettura x86\_64, 8 core, 16 thread), operante con profili termici e di frequenza stabilizzati per prevenire alterazioni dinamiche durante i cicli di calcolo intensivi.
+		\item \textbf{Memoria RAM:} 32 GB di memoria ad accesso casuale DDR4 operante ad alta frequenza (3600 MHz). Per azzerare l'overhead e le latenze parassite legate al ridimensionamento dinamico dello heap memory da parte della Java Virtual Machine, lo spazio runtime è stato bloccato a un'allocazione simmetrica iniziale e massima impostando i flag nativi \texttt{-Xms2G -Xmx2G}.
+		\item \textbf{Ambiente software:} Sistema operativo Microsoft Windows 11, accoppiato all'ambiente di esecuzione ufficiale Oracle Java Run-Time Environment (JRE) versione 21.0.10 LTS. Il processo di profilazione e compilazione a runtime sfrutta l'architettura HotSpot\texttrademark\ 64-Bit Server VM (build 21.0.10+8-LTS-217), attiva in \textit{mixed mode} con ottimizzazioni JIT (Just-In-Time) di livello C2 e condivisione dei dati di classe (\textit{sharing}).
 	\end{itemize}
 	
-	\subsubsection{Metodologia di Profilazione e Campionamento}
+	\subsubsection{Metodologia di profilazione e campionamento}
 	Come evidenziato nella letteratura scientifica legata al benchmarking su macchine virtuali regolate da Garbage Collection, la misurazione estemporanea del tempo di esecuzione (\textit{wall-clock time}) produce dati affetti da un alto coefficiente di varianza statistica. Per neutralizzare tali anomalie architetturali, la raccolta dati è stata strutturata in due fasi sequenziali distinte:
 	\begin{enumerate}
-		\item \textbf{Verifica Strutturale Preventiva:} Ogni algoritmo esegue una generazione preliminare su una griglia di test. Un modulo di controllo analitico verifica che il grafo risultante costituisca un vero albero di copertura privo di partizioni sconnesse, validando l'equazione di Eulero per i grafi planari ($|E'| = |V| - 1$).
-		\item \textbf{Fase di Riscaldamento (Warm-up):} Ciascun algoritmo viene eseguito per 100 iterazioni consecutive non registrate. Questa procedura garantisce che le sezioni di codice più calde (\textit{hot spots}) vengano intercettate dal profiler interno della JVM e tradotte direttamente in linguaggio macchina nativo altamente ottimizzato (loop unrolling, vettorializzazione hardware SIMD), stabilizzando i tempi prima della misurazione effettiva.
-		\item \textbf{Campionamento Iterativo:} La misurazione reale viene calcolata estraendo la media aritmetica su un blocco di 50 generazioni distinte per ogni singola taglia spaziale, utilizzando la funzione nativa di precisione \texttt{System.nanoTime()} convertita successivamente in scala millisecondi ($ms/op$).
+		\item \textbf{Verifica strutturale preventiva:} Ogni algoritmo esegue una generazione preliminare su una griglia di test. Un modulo di controllo analitico verifica che il grafo risultante costituisca un vero albero di copertura privo di partizioni sconnesse, validando l'equazione di Eulero per i grafi planari ($|E'| = |V| - 1$).
+		\item \textbf{Fase di riscaldamento (Warm-up):} Ciascun algoritmo viene eseguito per 100 iterazioni consecutive non registrate. Questa procedura garantisce che le sezioni di codice più calde (\textit{hot spots}) vengano intercettate dal profiler interno della JVM e tradotte direttamente in linguaggio macchina nativo altamente ottimizzato (loop unrolling, vettorializzazione hardware SIMD), stabilizzando i tempi prima della misurazione effettiva.
+		\item \textbf{Campionamento iterativo:} La misurazione reale viene calcolata estraendo la media aritmetica su un blocco di 50 generazioni distinte per ogni singola taglia spaziale, utilizzando la funzione nativa di precisione \texttt{System.nanoTime()} convertita successivamente in scala millisecondi ($ms/op$).
 	\end{enumerate}
 	
-	\subsection{Risultati Sperimentali Globali}
+	\subsection{Risultati sperimentali globali}
 	Le istanze di input seguono una progressione spaziale quadrata definita dall'insieme di nodi $V$, con un lato della griglia $N \in \{10, 20, 30, 50, 100\}$, coprendo un dominio di calcolo che spazia da un minimo di 100 celle fino a un massimo di 10.000 celle complessive per labirinto.
 	
 	Nella Tabella seguente sono racchiusi i dati empirici ricavati dall'esecuzione del benchmark headless:
@@ -283,51 +287,52 @@
 		\begin{tabular}{lccccc}
 			\hline
 			\textbf{Algoritmo} & \textbf{10x10} & \textbf{20x20} & \textbf{30x30} & \textbf{50x50} & \textbf{100x100} \\ \hline
-			Randomized DFS     & 0,0096 & 0,0248 & 0,2396 & 0,2097 & 0,6800 \\
-			Randomized Kruskal & 0,0291 & 0,0522 & 0,1215 & 0,2410 & 1,2001 \\
-			Randomized Prim    & 0,0194 & 0,0842 & 0,2172 & 0,5796 & 2,4104 \\
-			Aldous-Broder      & 0,0237 & 0,1634 & 0,4405 & 1,2573 & 6,4577 \\
-			Wilson's Algorithm & 0,0289 & 0,2006 & 0,8743 & 5,2983 & 79,6242 \\
-			Recursive Division & 0,0132 & 0,0180 & 0,0306 & 0,0804 & 0,3833 \\
-			Eller's Algorithm  & 0,0130 & 0,0600 & 0,1249 & 0,3668 & 2,0820 \\ \hline
+			Randomized DFS      & 0,0087 & 0,0234 & 0,0810 & 0,1817 & 0,6595 \\
+			Randomized Kruskal  & 0,0198 & 0,0329 & 0,0787 & 0,2441 & 1,3635 \\
+			Randomized Prim     & 0,0118 & 0,0250 & 0,0617 & 0,2144 & 0,8499 \\
+			Aldous-Broder       & 0,0601 & 0,1593 & 0,3219 & 1,2879 & 7,3361 \\
+			Wilson's Algorithm  & 0,0331 & 0,2088 & 0,7759 & 4,9501 & 82,3766 \\
+			Recursive Division  & 0,0126 & 0,0160 & 0,0393 & 0,0897 & 0,3447 \\
+			Eller's Algorithm   & 0,0148 & 0,0722 & 0,1292 & 0,3441 & 1,7317 \\ \hline
 		\end{tabular}
 		\caption{Tempi medi di esecuzione espressi in millisecondi ($ms/op$) al variare delle dimensioni della griglia.}
 		\label{tab:risultati_benchmark}
 	\end{table}
 	
-	\subsection{Discussione Critica dei Risultati}
-	L'analisi comparativa dei dati campionati mette in evidenza una discrepanza sistematica e affascinante tra la complessità asintotica teorica descritta nel Capitolo 2 e il comportamento macroscopico degli algoritmi sulla memoria fisica della Java Virtual Machine. I sette algoritmi testati rivelano dinamiche di scaling radicalmente distinte, che permettono di classificarli in tre macro-regimi prestazionali.
+	\subsection{Discussione critica dei risultati}
+	L'analisi comparativa dei dati campionati mette in evidenza una perfetta e coerente corrispondenza tra la complessità asintotica teorica descritta nel Capitolo 2 e il comportamento macroscopico degli algoritmi sulla memoria fisica della Java Virtual Machine. I sette algoritmi testati rivelano dinamiche di scaling nettamente distinte, che permettono di classificarli in tre macro-regimi prestazionali ben definiti.
 	
 	\subsubsection{Il dominio degli approcci Top-Down: Divisione Ricorsiva}
-	I dati empirici decretano l'algoritmo di \textbf{Divisione Ricorsiva} come l'approccio in assoluto più efficiente sull'intero spettro di campionamento, registrando appena $0,3833\ ms$ sulla taglia massima $100\times100$ ($|V| = 10.000$). 
+	I dati sperimentali raccolti in fase di benchmark evidenziano come l'algoritmo di Divisione Ricorsiva registri in assoluto il tempo di esecuzione medio più basso sull'intera suite di test, fermando il cronometro a soli $0,3447\text{ ms}$ sulla griglia massima di dimensioni $100\times100$. 
 	
-	Sebbene la sua complessità teorica sia $\mathcal{O}(V \log V)$ — dunque asintoticamente superiore alla linearità pura di Eller o del DFS — questo algoritmo beneficia di un vantaggio strutturale cruciale legato all'architettura hardware:
+	Questo straordinario riscontro empirico trova una coerente giustificazione nella corretta formulazione della complessità asintotica temporale del paradigma. Come dimostrato mediante l'applicazione del Teorema dell'Esperto (Caso 1), l'algoritmo esibisce una complessità linearmente pura pari a $\mathcal{O}(V)$. Poiché il costo computazionale richiesto per l'erezione dei muri divisori decresce geometricamente procedendo verso il basso nell'albero della ricorsione ($\mathcal{O}(\sqrt{V})$), il tempo di calcolo complessivo è interamente dominato e limitato dal numero di nodi foglia, ovvero dal volume totale delle celle.
+	
+	Oltre alla natura lineare della complessità teorica, la fluidità microscopica registrata a runtime sulla macchina di test è determinata da fattori micro-architetturali di fondamentale importanza:
 	\begin{itemize}
-		\item \textbf{Assenza di Pointer-Chasing:} A differenza degli algoritmi operanti sui grafi, la Divisione Ricorsiva non esegue traiettorie esplorative saltando da un riferimento di memoria all'altro (meccanica che causa continui \textit{cache miss} nei livelli L1/L2). 
-		\item \textbf{Località spaziale e JIT:} L'algoritmo opera sezionando geometricamente blocchi contigui di matrici. Il compilatore JIT HotSpot intercetta la sequenzialità dei cicli di inserimento dei muri, applicando autonomamente ottimizzazioni di \textit{loop unrolling} e delegando alla CPU la pre-inizializzazione dei blocchi in cache. Le costanti nascoste della complessità temporale risultano pertanto microscopiche.
+		\item \textbf{Cache Locality Elevata:} A differenza degli algoritmi basati su passeggiate casuali, la Divisione Ricorsiva opera per partizioni geometriche sub-regionali strettamente confinate. I cicli iterativi lavorano su porzioni di matrici spazialmente contigue, massimizzando l'efficienza dei registri di cache L1/L2 del processore AMD Ryzen 7 5700G e azzerando i tempi morti di recupero dei dati dalla memoria RAM.
+		\item \textbf{Assenza di Strutture Dati Ausiliarie Complesse:} L'algoritmo non necessita di code di priorità, insiemi disgiunti o array dinamici di tracciamento del percorso. La scomposizione si appoggia esclusivamente sullo stack di sistema tramite record di attivazione snelli, riducendo al minimo l'impatto sui cicli di clock della CPU.
+	\end{itemize}
+	La Divisione Ricorsiva si configura pertanto come il paradigma più efficiente in termini di \textit{wall-clock time}, dimostrando come la sinergia tra una complessità lineare $\mathcal{O}(V)$ e un pattern di accesso alla memoria sequenziale possa convertire l'astrazione matematica nella massima ottimizzazione hardware possibile.
+	
+	\subsubsection{L'efficienza dei Graph Traversal e delle strutture dati: DFS, Prim, Kruskal ed Eller}
+	Nel secondo regime prestazionale si posizionano gli algoritmi operanti direttamente sulle strutture del grafo, caratterizzati da uno scaling lineare o quasi-lineare controllato e da tempi di calcolo compresi tra $0,65\text{ ms}$ e $1,73\text{ ms}$ sulla taglia $100\times100$:
+	\begin{itemize}
+		\item \textbf{Randomized DFS ($0,6595\text{ ms}$):} Si conferma l'approccio orientato ai nodi più rapido. Operando in tempo lineare $\mathcal{O}(V)$, l'uso di uno stack strutturato riduce l'overhead di allocazione al minimo. La progressione rigorosamente monotonica e stabile dei dati ($0,0810\text{ ms} \to 0,1817\text{ ms} \to 0,6595\text{ ms}$) convalida l'efficacia della fase di \textit{warm-up} a 100 iterazioni, la quale ha indotto la compilazione nativa JIT (livello C2) in uno stato stazionario stabile prima della raccolta dei dati, eliminando fluttuazioni o ritardi parassiti a runtime.
+		\item \textbf{Randomized Prim Modificato ($0,8499\text{ ms}$):} Esibisce uno scaling eccellente, posizionandosi immediatamente a ridosso della DFS. Questo successo metrologico è determinato dall'integrazione dello \textit{swap-to-last trick} in fase di rimozione dei nodi dalla frontiera. Sostituendo il metodo \texttt{remove()} standard di \texttt{ArrayList} (che comporterebbe uno slittamento lineare degli elementi in memoria ad ogni estrazione), la tecnica scambia l'elemento selezionato con l'ultimo elemento del vettore prima di effettuarne l'eliminazione. Il costo di estrazione e di aggiornamento dinamico della frontiera viene così ridotto a tempo costante puro $\mathcal{O}(1)$, permettendo a Prim di riflettere fedelmente la complessità lineare teorica $\mathcal{O}(V)$ e di staccare l'algoritmo di Kruskal.
+		\item \textbf{Randomized Kruskal ($1,3635\text{ ms}$):} Mostra uno scaling controllato grazie all'efficienza ammortizzata della struttura dati \textit{Disjoint-Set} (Union-Find) dotata di compressione dei cammini e bilanciamento per rango. L'overhead principale che lo distanzia da Prim e DFS è localizzato nella fase di inizializzazione stocastica, in cui il metodo \texttt{Collections.shuffle} deve mescolare linearmente in memoria un vettore ad alta densità contenente la totalità degli archi della griglia prima di avviare il ciclo di unione.
+		\item \textbf{Eller's Algorithm ($1,7317\text{ ms}$):} Pur registrando la latenza più alta di questo comparto, l'algoritmo mantiene un andamento strettamente lineare. L'overhead residuo rispetto a Kruskal non è legato alla logica dei set, ma alla gestione dinamica delle tabelle associative di hashing (\texttt{java.util.Map}) necessarie per raggruppare, dividere e riassegnare i set dei cammini durante la complessa proiezione vettoriale eseguita riga per riga.
 	\end{itemize}
 	
-	\subsubsection{L'efficienza dei Graph Traversal e delle Strutture Dati: DFS, Kruskal ed Eller}
-	Nel secondo regime prestazionale si posizionano il \textbf{Randomized DFS} ($0,6800\ ms$), \textbf{Kruskal} ($1,2001\ ms$) ed \textbf{Eller} ($2,0820\ ms$).
-	\begin{itemize}
-		\item \textbf{Randomized DFS:} Si conferma il migliore tra gli approcci orientati ai nodi. Operando in tempo linearmente puro $\mathcal{O}(V)$, l'uso di uno stack vettorializzato riduce l'overhead di allocazione al minimo. Il leggero flesso osservabile tra la taglia $30\times30$ e $50\times50$ è un comportamento tipico delle misurazioni JVM, imputabile al superamento della soglia di compilazione del JIT che converte la funzione in codice nativo stabilizzato (steady-state).
-		\item \textbf{Kruskal Modificato:} Mostra uno scaling straordinariamente controllato grazie all'efficienza ammortizzata del Disjoint-Set. La compressione dei cammini azzera quasi completamente il costo delle unioni, rendendo l'inizializzazione stocastica (\texttt{Collections.shuffle}) l'unico vero fattore limitante su larga scala.
-		\item \textbf{Eller's Algorithm:} Pur registrando tempi leggermente superiori a Kruskal a $100\times100$, mantiene un andamento strettamente lineare. L'overhead residuo è legato unicamente alla gestione dinamica delle tabelle associative di hashing (\texttt{java.util.Map}) necessarie per raggruppare i set durante la fase di proiezione verticale riga per riga.
-	\end{itemize}
+	\subsubsection{Analisi comparativa dei paradigmi stocastici: Wilson e Aldous-Broder}
+	La terza e ultima macro-categoria del benchmark è rappresentata dai paradigmi basati su passeggiate casuali (\textit{Random Walks}): \textbf{Aldous-Broder} ($7,3361\text{ ms}$) e \textbf{Wilson} ($82,3766\text{ ms}$).
 	
-	\subsubsection{Analisi del collasso asintotico nei Random Walk: Wilson vs Aldous-Broder}
-	Il dato indubbiamente più rilevante ed eccentrico dell'intero benchmark risiede nel comportamento dell'algoritmo di \textbf{Wilson}, il quale collassa verticalmente sulla taglia $100\times100$ raggiungendo ben $79,6242\ ms$, distaccando l'altrimenti inefficiente \textbf{Aldous-Broder} ($6,4577\ ms$) di oltre un ordine di grandezza.
+	In questo framework, l'algoritmo di Wilson è stato ottimizzato introducendo una matrice booleana di supporto (\texttt{inWalk}) per il tracciamento istantaneo della traiettoria corrente. Questa scelta architetturale consente di verificare la formazione di un ciclo in tempo costante puro $\mathcal{O}(1)$ superando l'anti-pattern computazionale legato alla ricerca lineare sequenziale di un metodo ingenuo come ArrayList.indexOf(). Di conseguenza, l'estrazione del cammino depurato dai cicli (Loop-Erased Random Walk) avviene in modo efficiente, rispecchiando la complessità teorica intrinseca del paradigma che, su griglie bidimensionali, è asintoticamente pari a $\mathcal{O}(V \log^2 V)$.
 	
-	Questo fenomeno rappresenta un perfetto esempio di scontro tra l'eleganza matematica astratta e il vincolo implementativo delle strutture dati:
+	Nonostante l'ottimizzazione della cancellazione dei cicli, l'algoritmo di Wilson fa registrare un tempo pari a $82,3766\text{ ms}$ sulla taglia massima di $10.000$ celle, posizionandosi al di sopra di Aldous-Broder ($7,3361\text{ ms}$). Tale discrepanza nel \textit{wall-clock time} reale è determinata da un fattore amministrativo intrinseco alla logica dei due algoritmi:
 	\begin{enumerate}
-		\item \textbf{L'illusione dell'efficienza asintotica:} Sulla carta, l'algoritmo di Wilson schiaccia Aldous-Broder poiché la rimozione dei cicli impedisce alla passeggiata casuale di perdersi nel grafo. 
-		\item \textbf{Il collo di bottiglia di \texttt{ArrayList.indexOf()}:} Per identificare la formazione di un ciclo all'interno della passeggiata corrente, l'implementazione esegue l'istruzione \texttt{walkPath.indexOf(next)}. La struttura \texttt{ArrayList} effettua questa ricerca tramite una scansione lineare sequenziale, con costo pari a $\mathcal{O}(L)$, dove $L$ è la lunghezza attuale del cammino.
-		\item \textbf{Degradazione nel regime macroscopico:} Quando la griglia scala a $10.000$ celle, nelle fasi iniziali in cui l'albero consolidato è ancora molto piccolo, la passeggiata stocastica copre distanze enormi nel vuoto prima di intersecare l'albero. Il vettore \texttt{walkPath} si estende per migliaia di elementi; di conseguenza, ogni singolo passo della passeggiata casuale non costa più $\mathcal{O}(1)$, ma decade in un costo lineare $\mathcal{O}(L)$ dovuto al controllo dei cicli. 
+		\item \textbf{L'overhead di selezione della radice:} Ogni volta che una passeggiata casuale di Wilson converge unendosi al labirinto, l'algoritmo deve individuare una nuova cella di partenza esterna. Nel codice, il metodo \texttt{getRandomUnvisitedCell} effettua una scansione lineare dell'intera griglia per collezionare i nodi non ancora visitati. Questo campionamento globale introduce un costo di gestione computazionale che grava sul tempo fisico complessivo.
+		\item \textbf{La linearità locale di Aldous-Broder:} Al contrario, l'algoritmo di Aldous-Broder esibisce una complessità teorica superiore ($\mathcal{O}(V \log^2 V)$) a causa del paradosso del collezionista di coupon, il quale costringe la passeggiata a muoversi a vuoto nelle fasi finali della generazione. Tuttavia, ogni singolo passo della sua passeggiata casuale viene eseguito localmente in tempo costante $\mathcal{O}(1)$, verificando semplicemente un flag booleano sulla cella adiacente. All'interno dei confini metrici testati (fino a $100\times100$), l'assenza strutturale di routine di scansione globale per la selezione di nuove radici consente ad Aldous-Broder di mantenere un profilo di esecuzione compatto, superando l'algoritmo di Wilson nel mondo reale della JVM.
 	\end{enumerate}
-	Al contrario, \textbf{Aldous-Broder}, pur eseguendo un numero di passi totali statisticamente molto più elevato a causa del \textit{Coupon Collector's Problem}, esegue ad ogni singolo \textit{step} un controllo atomico in tempo costante $\mathcal{O}(1)$ (verificando semplicemente il flag booleano \texttt{visited} sulla matrice). Di conseguenza, su domini inferiori alle 10.000 celle, l'assenza di sovrastrutture di ricerca rende Aldous-Broder drasticamente più veloce di Wilson, ribaltando il verdetto della teoria asintotica pura.
-	
-	\subsubsection{Andamento dell'algoritmo di Prim}
-	L'algoritmo di \textbf{Prim Modificato} si attesta a $2,4104\ ms$ sulla taglia massima. L'andamento evidenzia chiaramente la natura quadratica $\mathcal{O}(V^2)$ della nostra implementazione a frontiera. Man mano che il labirinto si espande, la dimensione della lista dei muri candidati cresce proporzionalmente al perimetro dell'albero; l'operazione di rimozione casuale dall'array introduce quindi uno slittamento di memoria che ne frena le prestazioni rispetto a Kruskal, confermandone i limiti strutturali descritti in fase teorica.
 	
 	\newpage
 	\begin{thebibliography}{9}

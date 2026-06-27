@@ -82,20 +82,16 @@ public class MazeVisualizer extends JFrame {
         setLayout(new BorderLayout());
         add(canvas, BorderLayout.CENTER);
         
-        // Pannello dei Controlli con wrapping intelligente dell'altezza
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5)) {
             @Override
             public Dimension getPreferredSize() {
                 if (canvas == null) return super.getPreferredSize();
-                // Forza la larghezza dei controlli a combaciare con quella del labirinto
                 int targetWidth = canvas.getPreferredSize().width;
-                // Calcola l'altezza necessaria per ospitare i componenti mandandoli a capo
                 int targetHeight = calculateWrappedHeight(this, targetWidth);
                 return new Dimension(targetWidth, targetHeight);
             }
         };
         
-        // Configurazione componenti interni
         String[] algoNames = { 
             "Randomized DFS", "Randomized Kruskal", "Randomized Prim", 
             "Aldous-Broder", "Wilson's Algorithm", "Recursive Division", "Eller's Algorithm"
@@ -123,7 +119,6 @@ public class MazeVisualizer extends JFrame {
         
         add(controls, BorderLayout.SOUTH);
 
-        // Gestione Azioni
         btnAnimate.addActionListener(e -> startAnimatedGeneration());
         
         btnInstant.addActionListener(e -> {
@@ -144,10 +139,6 @@ public class MazeVisualizer extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    /**
-     * Algoritmo di simulazione del layout: calcola l'altezza verticale necessaria
-     * per disporre tutti i componenti visibili senza che escano dalla larghezza massima consentita.
-     */
     private int calculateWrappedHeight(JPanel panel, int maxWidth) {
         FlowLayout layout = (FlowLayout) panel.getLayout();
         int hgap = layout.getHgap();
@@ -162,7 +153,6 @@ public class MazeVisualizer extends JFrame {
             if (!comp.isVisible()) continue;
             Dimension d = comp.getPreferredSize();
             
-            // Se il componente sfora la riga corrente, va a capo
             if (!firstInRow && x + d.width + hgap > maxWidth) {
                 x = hgap;
                 y += rowHeight + vgap;
@@ -191,7 +181,7 @@ public class MazeVisualizer extends JFrame {
         int canvasWidth = cols * CELL_SIZE + (MARGIN * 2) + 1;
         int canvasHeight = rows * CELL_SIZE + (MARGIN * 2) + 1;
         canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
-        pack(); // Ricalcola le proporzioni della finestra richiamando il getPreferredSize() aggiornato
+        pack(); 
     }
 
     private void resetGrid() {
@@ -219,9 +209,9 @@ public class MazeVisualizer extends JFrame {
         algorithm.init(grid);
         canvas.repaint();
 
-        int estimatedSteps = rows * cols * 2; 
-        int calculatedDelay = 15000 / estimatedSteps;
-        int delay = Math.max(1, Math.min(30, calculatedDelay));
+        // SCELTA INGEGNERISTICA: Usiamo un delay fisso e costante (17 ms) per ogni atomo di azione.
+        // Questo evita il collasso dell'interfaccia visiva causato dal differente numero di passi degli algoritmi.
+        int delay = 17; // 1000 / 60 = 16.66
 
         javax.swing.Timer timer = new javax.swing.Timer(delay, null);
         timer.addActionListener(e -> {

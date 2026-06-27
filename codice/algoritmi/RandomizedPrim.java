@@ -50,7 +50,16 @@ public class RandomizedPrim implements MazeAlgorithm {
 
         // Sceglie un muro di frontiera a caso
         int index = rand.nextInt(frontier.size());
-        PrimWall pw = frontier.remove(index);
+        
+        // --- OTTIMIZZAZIONE O(1) SWAP-TO-LAST ---
+        PrimWall pw = frontier.get(index);
+        int lastIndex = frontier.size() - 1;
+        PrimWall lastWall = frontier.get(lastIndex);
+        
+        // Sovrascrive l'elemento estratto con l'ultimo e rimuove la coda
+        frontier.set(index, lastWall);
+        frontier.remove(lastIndex);
+        // ----------------------------------------
 
         if (!pw.outCell.visited) {
             pw.inCell.walls[pw.wallIn] = false;
