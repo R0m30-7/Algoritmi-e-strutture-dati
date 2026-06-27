@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.18)  27 JUN 2026 13:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.18)  27 JUN 2026 15:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -497,7 +497,7 @@ Package hyperref Info: Link coloring ON on input line 36.
 \@outlinefile=\write3
 \openout3 = `TesinaMiscioAlgoritmi.out'.
 
-<images/logo-unipg.png, id=127, 523.7166pt x 255.5949pt>
+<images/logo-unipg.png, id=131, 523.7166pt x 255.5949pt>
 File: images/logo-unipg.png Graphic file (type png)
 <use images/logo-unipg.png>
 Package pdftex.def Info: images/logo-unipg.png  used on input line 43.
@@ -527,28 +527,28 @@ l.129 	N
         ello specifico, il software sviluppato in linguaggio \texttt{Java} m...
 [1
 
-] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12]
-Underfull \hbox (badness 4765) in paragraph at lines 340--341
+] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14]
+Underfull \hbox (badness 4765) in paragraph at lines 357--358
 []\T1/cmr/m/n/12 Wikipedia con-tri-bu-tors, ``Ma-ze ge-ne-ra-tion al-go-ri-thm,
 '' \T1/cmr/m/it/12 Wi-ki-pe-dia, The Free
  []
 
-[13] (TesinaMiscioAlgoritmi.aux)
+[15] (TesinaMiscioAlgoritmi.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
 Package rerunfilecheck Info: File `TesinaMiscioAlgoritmi.out' has not changed.
-(rerunfilecheck)             Checksum: 0617099178E6BBE285B0FC37CAA14FA3;7903.
+(rerunfilecheck)             Checksum: 9F55C4776A8231E5B5CF1213F4B3705E;8158.
  ) 
 Here is how much of TeX's memory you used:
- 14571 strings out of 467691
- 253493 string characters out of 5414987
+ 14579 strings out of 467691
+ 253593 string characters out of 5414987
  694019 words of memory out of 5000000
- 43371 multiletter control sequences out of 15000+600000
+ 43376 multiletter control sequences out of 15000+600000
  643874 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,8n,79p,1467b,629s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,8n,79p,1423b,720s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\romeo\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt
 1200.pk> <C:\Users\romeo\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
 0\ecti1200.pk> <C:\Users\romeo\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
@@ -570,9 +570,9 @@ s/cm/cmmi8.pfb><C:/Users/romeo/AppData/Local/Programs/MiKTeX/fonts/type1/public
 ts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/romeo/AppData/Local/Programs/MiK
 TeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/romeo/AppData/Local/Pro
 grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on TesinaMiscioAlgoritmi.pdf (15 pages, 450568 bytes).
+Output written on TesinaMiscioAlgoritmi.pdf (17 pages, 456597 bytes).
 PDF statistics:
- 746 PDF objects out of 1000 (max. 8388607)
- 75 named destinations out of 1000 (max. 500000)
- 254 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 759 PDF objects out of 1000 (max. 8388607)
+ 78 named destinations out of 1000 (max. 500000)
+ 262 words of extra memory for PDF output out of 10000 (max. 10000000)
 

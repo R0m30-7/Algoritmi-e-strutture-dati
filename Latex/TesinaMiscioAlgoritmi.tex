@@ -137,21 +137,33 @@
 	Oltre all'analisi prestazionale pura asintotica e di wall-clock (tempo di esecuzione del programma), il progetto si propone di integrare un motore grafico per la visualizzazione dinamica passo-passo della crescita dello Spanning Tree. Al fine di garantire un'analisi visiva coerente ed equa tra i diversi paradigmi, il sistema adotta un intervallo di campionamento temporale costante per singola azione atomica ($delay = 17\ ms$). Questa scelta implementativa si rivela di fondamentale importanza: poiché il numero di operazioni necessarie alla creazione del labirinto varia drasticamente tra gli approcci deterministici (es. DFS) e quelli stocastici a passeggiata casuale (es. Aldous-Broder), un delay fisso permette all'osservatore di valutare visivamente e in tempo reale l'effettiva densità operativa e l'efficienza strutturale di ciascun algoritmo direttamente sul rendering della griglia.
 	
 	\section{Algoritmi implementati}
-	
 	In questo capitolo vengono analizzati in dettaglio tutti e sette gli algoritmi sviluppati per la generazione di labirinti perfetti. Ciascun approccio interpreta il problema dell'estrazione di uno Spanning Tree casuale sfruttando strutture dati e metodi differenti.
 	
 	\subsection{Randomized Depth-First Search (Recursive Backtracker)}
 	L'algoritmo basato sulla ricerca in profondità (DFS) modificata è un approccio classico di tipo \textit{backtracking}. Esso tende a generare labirinti caratterizzati da un basso numero di diramazioni corte e da corridoi marcatamente lunghi e tortuosi (frequenti vicoli ciechi profondi), proprietà topologica nota in letteratura come ``alto fattore di fiumi''.
 	
 	\subsubsection{Scelte implementative e gestione dello Stack}
-	La formulazione puramente ricorsiva dell'algoritmo DFS soffre intrinsecamente del limite di allocazione dello stack di memoria della Java Virtual Machine (\textit{StackOverflowError}) quando la dimensione della griglia $n = |V|$ scala linearmente. Per ovviare a questa limitazione hardware, si è optato per una \textbf{vettorializzazione esplicita dello stack} mediante la struttura dati \texttt{java.util.Stack}.
+	La formulazione puramente ricorsiva dell'algoritmo DFS delega implicitamente il tracciamento del cammino di \textit{backtracking} allo stack dei \textit{frame} di attivazione della Java Virtual Machine. Ciascuna chiamata nidificata alloca un record di memoria isolato in un'area ad accesso rapido ma strutturalmente limitata (tipicamente configurata di default a un massimo di 1~MB per thread). Nello scenario computazionale peggiore --- rappresentato da una topologia di labirinto lineare o a serpentina --- la profondità della ricorsione scala linearmente con il numero totale di nodi ($n = |V|$), esaurendo rapidamente lo spazio allocabile e provocando il crash irreversibile dell'applicazione tramite un'eccezione di \textit{StackOverflowError}.
 	
-	Il comportamento del singolo passo operativo, fondamentale per agganciare il ciclo di animazione della veste grafica senza bloccare il thread di rendering, è regolato dalla seguente logica a stati stabili:
+	Per ovviare a questo vincolo hardware, il motore di generazione è stato convertito in una variante iterativa accoppiata a una \textbf{vettorializzazione esplicita dello stack}. Tale tecnica prevede la rimozione delle chiamate a funzione a favore dell'uso diretto della struttura dati \texttt{java.util.Stack}. Dal punto di vista architetturale, questa scelta sposta il meccanismo di memorizzazione dei nodi dallo Stack di esecuzione alla memoria \textit{Heap} globale, la cui dimensione nel nostro setup sperimentale è protetta ed estesa fino a 2~GB tramite i flag di sistema \texttt{-Xms2G -Xmx2G}. 
+	
+	Il controllo del flusso operativo viene così sottratto all'automazione rigida della JVM e governato esplicitamente nel codice sorgente mediante le istruzioni atomiche \texttt{push} (inserimento) e \texttt{pop} (estrazione). Poiché l'espansione geometrica dell'array sottostante garantisce un costo computazionale pari a $\mathcal{O}(1)$ ammortizzato per singola operazione, l'approccio iterativo assicura uno \textit{scaling} sicuro e matematicamente illimitato, eliminando alla radice il rischio di saturazione della memoria anche su domini metrici di scala macroscopica.
+	
+	Il comportamento del singolo passo operativo è regolato dalla seguente logica a stati stabili:
 	\begin{enumerate}
-		\item Viene esaminata la cella in cima allo stack senza estrarla (\texttt{peek()}).
-		\item Si interroga l'intorno geometrico della cella per estrarre l'insieme dei vicini non ancora visitati.
-		\item Se l'insieme è non vuoto, viene selezionato casualmente un vicino, viene rimosso il muro divisorio tra le due celle, la nuova cella viene marcata come visitata e inserita nello stack (\texttt{push()}).
-		\item Se non vi sono vicini validi (vicolo cieco), si effettua il ritorno a ritroso rimuovendo la cella corrente dallo stack (\texttt{pop()}).
+		\item \textbf{Fase di inizializzazione (Seeding):} Prima dell'avvio del ciclo iterativo, lo stack si presenta vuoto. L'algoritmo seleziona una cella di partenza arbitraria all'interno del dominio della griglia (tipicamente il vertice di coordinate $(0,0)$), la contrassegna formalmente nello stato di ``non visitata'' e vi esegue sopra un'operazione di \texttt{push()}. Questa cella costituisce il seme iniziale e la radice geometrica dell'intero albero di copertura.
+		
+		\item \textbf{Ispezione dell'apice (The Peek Phase):} All'inizio di ogni iterazione del ciclo principale (il quale prosegue fintanto che lo stack non è vuoto), il sistema interroga l'elemento in cima alla struttura dati mediante il metodo \texttt{peek()}, senza tuttavia rimuoverlo. Questa cella rappresenta la testa corrente del cammino di esplorazione attiva.
+		
+		\item \textbf{Campionamento stocastico dei vicini:} L'algoritmo esamina i quattro punti cardinali adiacenti alla cella estratta per identificare i vicini geometrici che si trovano ancora nello stato di ``non visitati''. Se tale insieme non è vuoto:
+		\begin{itemize}
+			\item Viene estratto un vicino in modo equiprobabile sfruttando un generatore di numeri pseudo-casuali (approccio \textit{Randomized}).
+			\item Si procede all'abbattimento fisico delle barriere divisorie corrispondenti nella matrice dei muri, inserendo l'arco nell'insieme $E'$.
+			\item La cella vicina viene marcata come ``visitata'' per impedirne il ricampionamento futuro.
+			\item La cella viene immediatamente inserita in cima allo stack tramite un'istruzione di \texttt{push()}, diventando a tutti gli effetti la nuova testa del cammino per l'iterazione successiva.
+		\end{itemize}
+		
+		\item \textbf{Fase di Backtracking (The Pop Phase):} Qualora l'ispezione dei vicini determini che tutte le celle adiacenti alla testa attuale del cammino sono già state visitate (raggiungimento di un vicolo cieco locale), l'algoritmo attiva la routine di arretramento. La cella in esame viene definitivamente rimossa dallo stack mediante l'operazione di \texttt{pop()}. Alla successiva iterazione, l'istruzione \texttt{peek()} esaminerà la cella precedente, ripercorrendo a ritroso il corridoio fino a intercettare una biforcazione con vicini ancora inesplorati.
 	\end{enumerate}
 	
 	\subsubsection{Analisi della complessità teorica}
@@ -166,8 +178,8 @@
 	\subsubsection{La struttura dati Disjoint-Set (Union-Find)}
 	Per controllare in tempo quasi-costante se l'abbattimento di un muro introduce un ciclo indesiderato, è stata implementata da zero una foresta di insiemi disgiunti (\textbf{Disjoint-Set}) dotata di due ottimizzazioni fondamentali:
 	\begin{itemize}
-		\item \textbf{Unione per Rango (Union by Rank):} Attacca sempre l'albero con altezza minore sotto la radice dell'albero con altezza maggiore, limitando la crescita logaritmica delle strutture.
-		\item \textbf{Compressione dei Cammini (Path Compression):} Durante la fase di ricerca (\texttt{find}), ogni nodo visitato viene agganciato direttamente alla radice dell'insieme, appiattendo la struttura per le invocazioni successive.
+		\item \textbf{Unione per rango:} Attacca sempre l'albero con altezza minore sotto la radice dell'albero con altezza maggiore, limitando la crescita logaritmica delle strutture.
+		\item \textbf{Compressione dei cammini:} Durante la fase di ricerca (\texttt{find}), ogni nodo visitato viene agganciato direttamente alla radice dell'insieme, appiattendo la struttura per le invocazioni successive.
 	\end{itemize}
 	
 	\subsubsection{Analisi della complessità teorica}
@@ -175,6 +187,11 @@
 	A ogni passo estrattivo, l'algoritmo esegue due operazioni di \texttt{find} e al più una operazione di \texttt{union}. Sotto le ipotesi di compressione dei cammini e unione per rango, la complessità ammortizzata di ciascuna operazione è limitata superiormente dalla funzione inversa di una crescita esponenziale raddoppiata, espressa mediante la funzione di iterazione di Ackermann $\alpha(n)$. La complessità temporale complessiva per elaborare tutti gli archi è:
 	$$\mathcal{O}(E \cdot \alpha(V))$$
 	Poiché nella nostra griglia $|E| = \mathcal{O}(V)$ e la funzione $\alpha$ assume un valore pratico minore di $5$ per qualsiasi input realistico, l'algoritmo opera in tempo di \textit{wall-clock} quasi-lineare. Lo spazio aggiuntivo per mantenere i vettori dei padri e dei ranghi è pari a $\mathcal{O}(V)$.
+	
+	\subsubsection{Funzione di iterazione di Ackermann}
+	L'efficienza macroscopica del paradigma di Kruskal risiede nell'ottimizzazione formale della struttura dati \textit{Disjoint-Set} (Union-Find), deputata al rilevamento istantaneo dei cicli all'interno della foresta geometrica. Attraverso l'azione congiunta delle euristiche di bilanciamento per rango (\textit{union by rank}) e di compressione dei cammini (\textit{path compression}), il costo computazionale richiesto per eseguire le operazioni di ricerca (\texttt{find}) e fusione (\texttt{union}) subisce un abbattimento asintotico radicale. 
+	
+	Dal punto di vista analitico, la complessità temporale ammortizzata per singola operazione si attesta a $\mathcal{O}(\alpha(V))$, dove $\alpha$ rappresenta la funzione inversa di Ackermann. Poiché la funzione originaria di Ackermann esibisce una crescita iper-esplosiva basata su torri di potenze e tetrazioni, la sua controparte inversa $\alpha(V)$ delinea una progressione iper-lenta, assumendo un valore strettamente inferiore a $4$ per qualsiasi input fisicamente concepibile nel mondo reale (inclusi domini infinitamente superiori alla totalità degli atomi nell'universo osservabile). Questo legame matematico consente di decretare che, nell'ambito dell'architettura software sviluppata, le operazioni di gestione degli insiemi disgiunti avvengono in tempo quasi-costante $\mathcal{O}(1)$ a runtime, giustificando rigorosamente la stabilità e la fluidità di calcolo registrate in fase di profilazione sperimentale.
 	
 	\subsection{Algoritmo di Prim modificato}
 	L'algoritmo di Prim si sviluppa espandendo radialmente un unico sotto-albero a partire da una cella di innesco casuale. Mantiene costantemente traccia di una struttura di ``frontiera'', definita come l'insieme di tutti i muri che separano una cella già inclusa nel labirinto da una cella non ancora esplorata.
