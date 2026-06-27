@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class WilsonsAlgorithm implements MazeAlgorithm {
     private boolean[][] inMaze;
-    private boolean[][] inWalk; // Matrice O(1) per il tracciamento istantaneo del ciclo
+    private boolean[][] inWalk; // Matrice O(1) per il tracciamento interno del ciclo
     private ArrayList<Cell> currentWalk;
     private Random rand;
     private boolean walking;
@@ -24,8 +24,9 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
         currentWalk = new ArrayList<>();
         rand = new Random();
         walking = false;
+        currentCell = null;
 
-        // Inserisce una prima cella casuale nel labirinto (albero iniziale)
+        // Inserisce la prima cella radice nel labirinto permanente
         int startX = rand.nextInt(cols);
         int startY = rand.nextInt(rows);
         inMaze[startY][startX] = true;
@@ -34,58 +35,96 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
 
     @Override
     public boolean takeStep(Cell[][] grid) {
+        // Se il labirinto è completo, spegniamo l'ultima testina arancione e terminiamo
         if (cellsInMaze >= rows * cols) {
-            return false; // Labirinto completato
+            if (currentCell != null) {
+                currentCell.isCurrent = false;
+            }
+            return false; 
         }
 
+        // Spegniamo la testina arancione sulla cella del passo precedente
+        if (currentCell != null) {
+            currentCell.isCurrent = false;
+        }
+
+        // FASE 1: Inizio di un nuovo cammino stocastico
         if (!walking) {
-            // Seleziona una cella di partenza fuori dal labirinto
             currentCell = getRandomUnvisitedCell(grid);
             currentWalk.clear();
             currentWalk.add(currentCell);
             inWalk[currentCell.y][currentCell.x] = true;
+            
+            // RENDERING: Accendiamo la scia (grigia) e la testa dell'omino (arancione)
+            currentCell.visited = true;
+            currentCell.isCurrent = true;
+            
             walking = true;
             return true;
         }
 
+        // FASE 2: Avanzamento di un singolo passo verso un vicino casuale
         Cell neighbor = getRandomNeighbor(currentCell, grid);
 
         if (inMaze[neighbor.y][neighbor.x]) {
-            // Successo: la passeggiata ha intersecato il labirinto esistente
+            // CASO A: Il cammino si connette al labirinto stabile!
+            breakWall(currentCell, neighbor); 
             currentWalk.add(neighbor);
+            
+            // Consolidiamo il ramo: i muri rimangono aperti e lo sfondo torna bianco (default)
             for (int i = 0; i < currentWalk.size() - 1; i++) {
-                Cell c1 = currentWalk.get(i);
-                Cell c2 = currentWalk.get(i + 1);
-                breakWall(c1, c2); // Abbate i muri nel tuo codice originale
-                inMaze[c1.y][c1.x] = true;
-                inWalk[c1.y][c1.x] = false; // Reset dello stato di passeggiata
+                Cell c = currentWalk.get(i);
+                inMaze[c.y][c.x] = true;
+                inWalk[c.y][c.x] = false; 
+                
+                // RENDERING: Ripristino dello sfondo di default come richiesto
+                c.visited = false;
+                c.isCurrent = false;
+                
                 cellsInMaze++;
             }
             currentWalk.clear();
             walking = false;
+            currentCell = null; 
+
         } else if (inWalk[neighbor.y][neighbor.x]) {
-            // OTTIMIZZAZIONE O(1): Ciclo rilevato all'istante senza indexOf!
-            // Rimuoviamo gli elementi dalla coda dell'ArrayList fino al punto di intersezione
+            // CASO B: Loop-Erasure (L'omino interseca la sua stessa scia)
+            // Cancelliamo il cappio, rialziamo i muri e spegniamo i colori in tempo reale
             while (currentWalk.get(currentWalk.size() - 1) != neighbor) {
                 Cell removed = currentWalk.remove(currentWalk.size() - 1);
                 inWalk[removed.y][removed.x] = false;
+                
+                // RENDERING: Spegniamo la scia e la testa sulle celle rimosse dal ciclo
+                removed.visited = false;
+                removed.isCurrent = false;
+                
+                Cell previous = currentWalk.get(currentWalk.size() - 1);
+                repairWall(previous, removed);
             }
-            currentCell = neighbor; // Riparte dal punto in cui il cappio si è chiuso
+            currentCell = neighbor;
+            currentCell.isCurrent = true; // La testa arancione si posiziona sul punto di giunzione
+
         } else {
-            // Avanzamento normale nella passeggiata casuale
+            // CASO C: Avanzamento standard nello spazio vuoto
+            breakWall(currentCell, neighbor); 
             currentWalk.add(neighbor);
             inWalk[neighbor.y][neighbor.x] = true;
+            
+            // RENDERING: Coloriamo la nuova cella del cammino e spostiamo la testa arancione
+            neighbor.visited = true;
+            neighbor.isCurrent = true;
+            
             currentCell = neighbor;
         }
 
-        return true;
+        return cellsInMaze < rows * cols;
     }
 
     @Override
     public void generateFully(Cell[][] grid) {
         init(grid);
         while (takeStep(grid)) {
-            // Cicla fino a totale convergenza
+            // Sfrutta la medesima logica strutturale a velocità nativa per i benchmark
         }
     }
 
@@ -115,6 +154,16 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
         } else {
             if (c1.x > c2.x) { c1.walls[3] = false; c2.walls[2] = false; }
             else { c1.walls[2] = false; c2.walls[3] = false; }
+        }
+    }
+
+    private void repairWall(Cell c1, Cell c2) {
+        if (c1.x == c2.x) {
+            if (c1.y > c2.y) { c1.walls[0] = true; c2.walls[1] = true; }
+            else { c1.walls[1] = true; c2.walls[0] = true; }
+        } else {
+            if (c1.x > c2.x) { c1.walls[3] = true; c2.walls[2] = true; }
+            else { c1.walls[2] = true; c2.walls[3] = true; }
         }
     }
 }
