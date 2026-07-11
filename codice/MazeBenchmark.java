@@ -5,7 +5,6 @@ import java.util.List;
 import codice.algoritmi.*;
 
 public class MazeBenchmark {
-
     private static final int[] SIZES = {10, 20, 30, 50, 100};
     private static final int WARMUP_ITERATIONS = 100;
     private static final int MEASURE_ITERATIONS = 50;
@@ -35,7 +34,7 @@ public class MazeBenchmark {
             "Eller's Algorithm"
         };
 
-        // 1. Fase di Verifica Correttezza Preventiva
+        // Controllo la correttezza di ogni algoritmo (non serve, inserito solo per completezza)
         System.out.println("\n[1/3] Verifica preventiva di correttezza in corso...");
         for (int i = 0; i < algorithms.length; i++) {
             boolean isCorrect = verifyAlgorithm(algorithms[i]);
@@ -46,21 +45,21 @@ public class MazeBenchmark {
             System.out.println("  -> " + algoNames[i] + ": SUPERATO");
         }
 
-        // 2. Fase di Warm-up per stabilizzare il JIT Compiler della JVM
+        // Fase di Warm-up per stabilizzare il JIT Compiler della JVM
         System.out.println("\n[2/3] Fase di JIT Warm-up avviata (attendere...)");
         for (MazeAlgorithm algo : algorithms) {
             runWarmup(algo);
         }
         System.out.println("  -> Warm-up completato. Codice nativo ottimizzato.");
 
-        // 3. Fase di Misurazione Reale delle Prestazioni
+        // Fase di misurazione reale delle prestazioni
         System.out.println("\n[3/3] Raccolta dati sperimentali (Tempi medi in ms):");
         System.out.printf("%-20s %-10s %-10s %-10s %-10s %-10s\n", "Algoritmo", "10x10", "20x20", "30x30", "50x50", "100x100");
         System.out.println("----------------------------------------------------------------------");
 
-        for (int a = 0; a < algorithms.length; a++) {
+        for (int a = 0; a < algorithms.length; a++) {   // Per ogni algoritmo
             System.out.printf("%-20s ", algoNames[a]);
-            for (int size : SIZES) {
+            for (int size : SIZES) {    // Per tutte le dimensioni
                 double avgTime = measurePerformance(algorithms[a], size);
                 System.out.printf("%-10.4f ", avgTime);
             }
@@ -70,7 +69,7 @@ public class MazeBenchmark {
     }
 
     private static boolean verifyAlgorithm(MazeAlgorithm algo) {
-        int size = 20;
+        int size = 20;  // Dimensione della griglia di prova
         Cell[][] grid = createEmptyGrid(size, size);
         algo.generateFully(grid);
 
