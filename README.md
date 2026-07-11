@@ -1,10 +1,10 @@
-# 📝 GENERATORE E RISOLUTORE DI LABIRINTI (ASD)
+# 📝 GENERATORE E RISOLUTORE DI LABIRINTI
 
-Questo progetto software è stato sviluppato per l'esame di **Algoritmi e Strutture Dati**. Include l'implementazione procedurale di 7 algoritmi di generazione di labirinti perfetti (Spanning Tree casuali), un risolutore automatico basato su ricerca in ampiezza (BFS) e un'infrastruttura di benchmark headless per l'analisi dei tempi di esecuzione.
+Questo progetto è stato sviluppato per l'esame di **Algoritmi e Strutture Dati**. Include l'implementazione procedurale di 7 algoritmi di generazione di labirinti perfetti (Spanning Tree casuali), un risolutore automatico basato su ricerca in ampiezza (BFS) e un'infrastruttura di benchmark per l'analisi dei tempi di esecuzione.
 
 ---
 
-## 📂 Struttura del Progetto
+## Struttura del progetto
 
 Una volta decompresso l'archivio della consegna, la disposizione dei file si presenta nel seguente modo:
 
@@ -22,37 +22,35 @@ Una volta decompresso l'archivio della consegna, la disposizione dei file si pre
 
 ---
 
-## 🛠️ Requisiti di Sistema
+## Requisiti di sistema
 
 - **Java Development Kit (JDK):** Versione 17 o superiore (consigliata versione 26) installata nel sistema e configurata nelle variabili d'ambiente (`javac` e `java` accessibili da terminale).
 
 ---
 
-## 💻 Istruzioni per la Compilazione e l'Esecuzione
+## Istruzioni per la compilazione e l'esecuzione
 
-Per testare il software, apri una shell di comando (Terminale, Prompt dei comandi o PowerShell) e posizionati nella **cartella principale** del progetto (la directory che contiene il file `TesinaMiscioAlgoritmi.pdf` e la cartella `codice/`).
+Per testare il software, aprire una shell di comando e posizionarsi nella **cartella principale** del progetto (la directory che contiene il file `TesinaMiscioAlgoritmi.pdf` e la cartella `codice/`).
 
-### 1. Compilazione dei Sorgenti
+### 1. Compilazione dei file di java
 
-Lancia il seguente comando per compilare simultaneamente tutte le classi del pacchetto principale e del sotto-pacchetto degli algoritmi:
+Lanciare il seguente comando per compilare simultaneamente tutte le classi del pacchetto principale e del sotto-pacchetto degli algoritmi:
 
 ```bash
 javac codice/*.java codice/algoritmi/*.java
 ```
 
-_Se il comando viene eseguito correttamente, verranno generati i rispettivi file `.class` all'interno delle cartelle dei sorgenti senza mostrare alcun messaggio di errore._
+### 2. Esecuzione dell'interfaccia grafica (visualizzatore)
 
-### 2. Esecuzione dell'Interfaccia Grafica (Visualizzatore)
-
-Per lanciare l'applicazione desktop interattiva, che permette di selezionare gli algoritmi, impostare dimensioni dinamiche delle griglie (X e Y), osservare l'animazione a tempo controllato (max 15s) e visualizzare la risoluzione del percorso, esegui:
+Per lanciare l'applicazione desktop interattiva, che permette di selezionare gli algoritmi, impostare dimensioni dinamiche delle griglie (X e Y), osservare l'animazione a tempo controllato (si punta ad avere 60fps stabili) e visualizzare la risoluzione del percorso, eseguire:
 
 ```bash
 java codice.MazeVisualizer
 ```
 
-### 3. Esecuzione del Benchmark delle Prestazioni
+### 3. Esecuzione del benchmark delle prestazioni
 
-Per avviare la profilazione headless strutturata con verifica preventiva di correttezza e cicli di warm-up per il JIT compiler della Java Virtual Machine, esegui:
+Per avviare il file di benchmark con verifica preventiva di correttezza e cicli di warm-up per il JIT compiler della Java Virtual Machine, eseguire:
 
 ```bash
 java codice.MazeBenchmark
