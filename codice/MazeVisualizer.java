@@ -20,10 +20,6 @@ public class MazeVisualizer extends JFrame {
     private MazeAlgorithm algorithm;
     private JPanel canvas;
 
-    // Inizio e fine del labirinto
-    Cell startCell = grid[0][0];
-    Cell endCell = grid[rows - 1][cols - 1];
-
     private JComboBox<String> algoSelector; // Selettore di algoritmo
     private JSpinner spinnerCols;           // Colonne del labirinto
     private JSpinner spinnerRows;           // Righe del labirinto
@@ -55,6 +51,10 @@ public class MazeVisualizer extends JFrame {
         
         grid = new Cell[rows][cols];    // Inizializzo la griglia del labirinto
         resetGrid();    // Reimposto le celle (alzo i muri)
+
+        // Inizio e fine del labirinto
+        Cell startCell = grid[0][0];
+        Cell endCell = grid[rows - 1][cols - 1];
 
         canvas = new JPanel() {
             @Override
