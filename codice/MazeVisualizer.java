@@ -33,7 +33,7 @@ public class MazeVisualizer extends JFrame {
     private JButton btnSolve;               // Pulsante per risoluzione del labirinto
 
     // Impostiamo il delay in modo che in totale dovrebbero risultare 60 aggiornamenti al secondo
-    private int animationDelay = Math.ceil(1000.0 / 60.0);  // ms
+    private int animationDelay = (int) Math.ceil(1000.0 / 60.0);  // ms
 
     private javax.swing.Timer animationTimer;   // Timer spostato a livello di classe per essere interrotto dal pulsante
 
