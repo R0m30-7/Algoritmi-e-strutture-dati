@@ -55,9 +55,7 @@ public class MazeVisualizer extends JFrame {
         grid = new Cell[rows][cols];    // Inizializzo la griglia del labirinto
         resetGrid();    // Reimposto le celle (alzo i muri)
 
-        // Inizio e fine del labirinto
-        startCell = grid[0][0];
-        endCell = grid[rows - 1][cols - 1];
+        setupStartAndEndCells();
 
         canvas = new JPanel() {
             @Override
@@ -208,6 +206,9 @@ public class MazeVisualizer extends JFrame {
         cols = (Integer) spinnerCols.getValue();
         grid = new Cell[rows][cols];
         resetGrid();
+
+        setupStartAndEndCells();
+
         updateCanvasSize();
     }
 
@@ -229,7 +230,7 @@ public class MazeVisualizer extends JFrame {
     }
 
     private void openEntranceAndExit() {
-        // Posiziono l'ingresso in alto a sinistra e l'uscita in basso a destra
+        // Abbatto il muro sinistro dell'ingresso e destro dell'uscita
         startCell.walls[3] = false;
         endCell.walls[2] = false;
     }
@@ -287,6 +288,11 @@ public class MazeVisualizer extends JFrame {
         algoSelector.setEnabled(true);
         btnStop.setEnabled(false);  // Stop disattivato dato che l'animazione non è in corso
         btnSolve.setEnabled(generationSuccessful);  // Attivo solo se il labirinto è completo
+    }
+
+    private void setupStartAndEndCells() {  // Gestione centralizzata della cella di partenza e arrivo
+        startCell = grid[0][0];
+        endCell = grid[rows - 1][cols - 1];
     }
 
     private void solveMaze() {
