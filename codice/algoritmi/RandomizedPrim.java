@@ -1,3 +1,12 @@
+/**
+ * Prim lavora per espansione radiale: 
+ * parte da una cella casuale e fa crescere il labirinto come una macchia d'olio.
+ * Mantiene una lista "frontier" di tutti i muri che separano le celle già incluse 
+ * nel labirinto da quelle ancora escluse. A ogni passo, sceglie un muro a caso dalla 
+ * frontiera: se la cella adiacente è ancora inesplorata, abbatte il muro, la include 
+ * nel labirinto e aggiorna la frontiera con i nuovi muri disponibili.
+*/
+
 package codice.algoritmi;
 import codice.*;
 
@@ -7,9 +16,14 @@ import java.util.Random;
 
 public class RandomizedPrim implements MazeAlgorithm {
 
+    /**
+     * Rappresenta un muro della "frontiera".
+     * Mette in relazione una cella già facente parte del labirinto (inCell) 
+     * con una cella adiacente che si trova ancora all'esterno (outCell).
+    */
     private static class PrimWall {
-        Cell inCell;  // Cella già nel labirinto
-        Cell outCell; // Cella potenzialmente fuori dal labirinto
+        Cell inCell;    // Cella già nel labirinto
+        Cell outCell;   // Cella potenzialmente fuori dal labirinto
         int wallIn, wallOut;
 
         PrimWall(Cell inCell, Cell outCell, int wallIn, int wallOut) {
@@ -23,6 +37,11 @@ public class RandomizedPrim implements MazeAlgorithm {
     private List<PrimWall> frontier = new ArrayList<>();
     private Random rand = new Random();
 
+    /**
+     * Inizializza lo stato azzerando la griglia e impostando tutte le celle come non visitate.
+     * Seleziona una cella di partenza in modo completamente casuale, la marca come 
+     * visitata (inclusa nel labirinto) e popola la frontiera iniziale con i suoi muri.
+    */
     @Override
     public void init(Cell[][] grid) {
         frontier.clear();
@@ -42,6 +61,12 @@ public class RandomizedPrim implements MazeAlgorithm {
         addFrontier(start, grid);
     }
 
+    /**
+     * Estrae un muro casuale dalla frontiera tramite un'ottimizzazione O(1) swap-to-last.
+     * Se la cella esterna collegata a quel muro non è ancora stata visitata, abbatte 
+     * il passaggio, include la cella nel labirinto e ne espande la frontiera.
+     * Ritorna true se il labirinto è ancora in generazione, false se la frontiera è vuota.
+    */
     @Override
     public boolean takeStep(Cell[][] grid) {
         if (frontier.isEmpty()) {
@@ -59,7 +84,6 @@ public class RandomizedPrim implements MazeAlgorithm {
         // Sovrascrive l'elemento estratto con l'ultimo e rimuove la coda
         frontier.set(index, lastWall);
         frontier.remove(lastIndex);
-        // ----------------------------------------
 
         if (!pw.outCell.visited) {
             pw.inCell.walls[pw.wallIn] = false;
@@ -88,6 +112,11 @@ public class RandomizedPrim implements MazeAlgorithm {
         }
     }
 
+    /**
+     * Analizza i 4 punti cardinali attorno alla cella passata.
+     * Se un vicino rientra nei limiti della griglia e non fa ancora parte del labirinto 
+     * (!visited), crea un nuovo oggetto PrimWall e lo aggiunge alla lista della frontiera.
+    */
     private void addFrontier(Cell c, Cell[][] grid) {
         int rows = grid.length;
         int cols = grid[0].length;

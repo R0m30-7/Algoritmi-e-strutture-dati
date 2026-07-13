@@ -1,3 +1,10 @@
+/**
+ * Questo algoritmo parte da uno spazio totalmente aperto (vuoto) 
+ * e aggiunge progressivamente muri per partizionare l'area in sotto-regioni sempre più piccole.
+ * Ogni volta che traccia un muro divisorio, apre un singolo varco casuale al suo interno 
+ * per mantenere il labirinto perfettamente interconnesso ed evitare vicoli ciechi isolati.
+*/
+
 package codice.algoritmi;
 import codice.*;
 
@@ -6,6 +13,11 @@ import java.util.Random;
 
 public class RecursiveDivision implements MazeAlgorithm {
     
+    /**
+     * Rappresenta una sotto-regione rettangolare all'interno del labirinto.
+     * Delimita lo spazio geometrico che l'algoritmo deve esaminare e dividere, 
+     * tracciato tramite le coordinate dell'angolo superiore sinistro (x, y) e le dimensioni (w, h).
+    */
     private static class Region {
         int x, y, w, h;
         Region(int x, int y, int w, int h) {
@@ -16,7 +28,7 @@ public class RecursiveDivision implements MazeAlgorithm {
         }
     }
 
-    private Stack<Region> stack = new Stack<>();
+    private Stack<Region> stack = new Stack<>();    // Coda LIFO
     private Random rand = new Random();
 
     @Override
@@ -25,19 +37,19 @@ public class RecursiveDivision implements MazeAlgorithm {
         int rows = grid.length;
         int cols = grid[0].length;
 
-        // IMPORTANTE: Questo algoritmo inizia SENZA muri interni e li costruisce!
+        // Abbattimento di tutti i muri
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 grid[y][x].visited = true;
                 grid[y][x].isCurrent = false;
                 
-                // Abbattiamo tutti i muri interni, lasciando solo il perimetro esterno
                 grid[y][x].walls[0] = (y == 0);          // Nord
                 grid[y][x].walls[1] = (y == rows - 1);   // Sud
                 grid[y][x].walls[2] = (x == cols - 1);   // Est
                 grid[y][x].walls[3] = (x == 0);          // Ovest
             }
         }
+        // Inizializzazione dello stack
         stack.push(new Region(0, 0, cols, rows));
     }
 
@@ -47,8 +59,8 @@ public class RecursiveDivision implements MazeAlgorithm {
 
         Region reg = stack.pop();
 
-        if (reg.w < 2 || reg.h < 2) {
-            return true; // Regione troppo piccola per essere divisa, salta al prossimo step
+        if (reg.w < 2 || reg.h < 2) {    // Regione troppo piccola per essere divisa
+            return true;
         }
 
         boolean horizontal = chooseOrientation(reg.w, reg.h);
@@ -89,8 +101,8 @@ public class RecursiveDivision implements MazeAlgorithm {
     }
 
     private boolean chooseOrientation(int width, int height) {
-        if (width < height) return true;  // Dividi orizzontalmente se è più alta che larga
-        if (height < width) return false; // Dividi verticalmente se è più larga che alta
+        if (width < height) return true;    // Divisione orizzontale se è più alta che larga
+        if (height < width) return false;   // Dividi verticale se è più larga che alta
         return rand.nextBoolean();
     }
 
@@ -98,7 +110,7 @@ public class RecursiveDivision implements MazeAlgorithm {
     public void generateFully(Cell[][] grid) {
         init(grid);
         while (takeStep(grid)) {
-            // Esegue ricorsivamente fino alla saturazione delle sotto-regioni
+
         }
     }
 }

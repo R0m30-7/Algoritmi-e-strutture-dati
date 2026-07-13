@@ -1,3 +1,13 @@
+/**
+ * È uno degli algoritmi più efficienti in assoluto dal punto di vista della memoria, 
+ * poiché calcola il labirinto riga per riga. Non ha bisogno di conoscere l'intera griglia, 
+ * ma memorizza solo le relazioni di connettività della riga corrente tramite un sistema di "set" numerici.
+ * Ad ogni riga, l'algoritmo effettua due passaggi: prima unisce casualmente celle adiacenti 
+ * di set diversi (abbattendo muri orizzontali), poi crea almeno una connessione verso il basso 
+ * per ciascun set (abbattendo muri verticali) per far ereditare il set alla riga successiva. 
+ * L'ultima riga viene trattata in modo speciale per connettere forzatamente tutti i set rimasti isolati.
+*/
+
 package codice.algoritmi;
 import codice.*;
 
@@ -10,6 +20,10 @@ public class EllersAlgorithm implements MazeAlgorithm {
     private Random rand = new Random();
     private int rows, cols;
 
+    /**
+     * Inizializza lo stato dell'algoritmo preparando la griglia e rendendo le celle visibili.
+     * Assegna a ciascuna cella della prima riga un identificativo di "set" univoco.
+    */
     @Override
     public void init(Cell[][] grid) {
         rows = grid.length;
@@ -35,17 +49,18 @@ public class EllersAlgorithm implements MazeAlgorithm {
     public boolean takeStep(Cell[][] grid) {
         if (currentRow >= rows) return false;
 
-        // Pulisce l'evidenziazione grafica della riga precedente
+        // Pulizia dell'evidenziazione grafica della riga precedente
         if (currentRow > 0) {
             for (int x = 0; x < cols; x++) grid[currentRow - 1][x].isCurrent = false;
         }
 
-        // Evidenzia la riga in fase di elaborazione
+        // Evidenziazione della riga in fase di elaborazione
         for (int x = 0; x < cols; x++) grid[currentRow][x].isCurrent = true;
 
         boolean isLastRow = (currentRow == rows - 1);
 
-        // 1. Connessioni Orizzontali
+        // 1. Connessioni orizzontali: Unisce casualmente celle adiacenti con set diversi e ne 
+        // unifica i set di appartenenza. Se è l'ultima riga, l'unione è forzata per chiudere il labirinto.
         for (int x = 0; x < cols - 1; x++) {
             if (currentSet[x] != currentSet[x + 1]) {
                 boolean join = rand.nextBoolean() || isLastRow;
@@ -59,13 +74,15 @@ public class EllersAlgorithm implements MazeAlgorithm {
                             currentSet[i] = newSet;
                         }
                     }
-                    grid[currentRow][x].walls[2] = false;     // Abbatti Est
-                    grid[currentRow][x + 1].walls[3] = false; // Abbatti Ovest
+                    grid[currentRow][x].walls[2] = false;       // Abbatti Est
+                    grid[currentRow][x + 1].walls[3] = false;   // Abbatti Ovest
                 }
             }
         }
 
-        // 2. Connessioni Verticali verso il basso (solo se non siamo all'ultima riga)
+        // 2. Connessioni berticali: garantisce che ogni set esistente nella riga si estenda 
+        // verso il basso in almeno un punto casuale, trasmettendo il proprio set alla riga sotto.
+        // Inizializza infine le celle senza connessione verticale con nuovi set esclusivi e avanza alla riga successiva.
         if (!isLastRow) {
             int[] nextSet = new int[cols];
             Map<Integer, List<Integer>> setGroups = new HashMap<>();
@@ -82,9 +99,9 @@ public class EllersAlgorithm implements MazeAlgorithm {
 
                 for (int i = 0; i < verticalPaths; i++) {
                     int x = indices.get(i);
-                    grid[currentRow][x].walls[1] = false;         // Sud riga corrente
-                    grid[currentRow + 1][x].walls[0] = false;     // Nord riga successiva
-                    nextSet[x] = currentSet[x];                  // Eredità del set
+                    grid[currentRow][x].walls[1] = false;       // Sud riga corrente
+                    grid[currentRow + 1][x].walls[0] = false;   // Nord riga successiva
+                    nextSet[x] = currentSet[x];                 // Eredità del set
                 }
             }
 

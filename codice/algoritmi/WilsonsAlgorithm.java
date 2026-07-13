@@ -1,3 +1,11 @@
+/**
+ * Utilizza il principio del cammino casuale con cancellazione dei cicli.
+ * Parte ancorando una prima cella casuale al labirinto stabile. Successivamente, da ogni cella 
+ * rimasta isolata, fa partire una passeggiata casuale: se il percorso interseca se stesso, 
+ * il ciclo viene cancellato e i muri ripristinati; se invece interseca il labirinto 
+ * sicuro, l'intera scia viene consolidata abbattendone definitivamente i muri.
+*/
+
 package codice.algoritmi;
 import codice.*;
 
@@ -15,6 +23,11 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
     private int rows, cols;
     private int cellsInMaze;
 
+    /**
+     * Inizializza le matrici di tracciamento del labirinto e della camminata corrente.
+     * Seleziona una cella radice iniziale in modo casuale e la inserisce subito nel 
+     * labirinto permanente, definendo il punto di aggancio per i cammini futuri.
+    */
     @Override
     public void init(Cell[][] grid) {
         rows = grid.length;
@@ -35,27 +48,25 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
 
     @Override
     public boolean takeStep(Cell[][] grid) {
-        // Se il labirinto è completo, spegniamo l'ultima testina arancione e terminiamo
-        if (cellsInMaze >= rows * cols) {
+        if (cellsInMaze >= rows * cols) {   // Labirinto completo
             if (currentCell != null) {
                 currentCell.isCurrent = false;
             }
             return false; 
         }
 
-        // Spegniamo la testina arancione sulla cella del passo precedente
         if (currentCell != null) {
             currentCell.isCurrent = false;
         }
 
-        // FASE 1: Inizio di un nuovo cammino stocastico
+        // Inizio di un nuovo cammino stocastico
         if (!walking) {
             currentCell = getRandomUnvisitedCell(grid);
             currentWalk.clear();
             currentWalk.add(currentCell);
             inWalk[currentCell.y][currentCell.x] = true;
             
-            // RENDERING: Accendiamo la scia (grigia) e la testa dell'omino (arancione)
+            // Variabili per il rendering
             currentCell.visited = true;
             currentCell.isCurrent = true;
             
@@ -63,21 +74,20 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
             return true;
         }
 
-        // FASE 2: Avanzamento di un singolo passo verso un vicino casuale
+        // Avanzamento di un singolo passo verso un vicino casuale
         Cell neighbor = getRandomNeighbor(currentCell, grid);
 
         if (inMaze[neighbor.y][neighbor.x]) {
-            // CASO A: Il cammino si connette al labirinto stabile!
+            // CASO A: Il cammino si connette al labirinto stabile
             breakWall(currentCell, neighbor); 
             currentWalk.add(neighbor);
             
-            // Consolidiamo il ramo: i muri rimangono aperti e lo sfondo torna bianco (default)
+            // Consolidamento del ramo: i muri rimangono aperti e lo sfondo torna bianco
             for (int i = 0; i < currentWalk.size() - 1; i++) {
                 Cell c = currentWalk.get(i);
                 inMaze[c.y][c.x] = true;
-                inWalk[c.y][c.x] = false; 
+                inWalk[c.y][c.x] = false;
                 
-                // RENDERING: Ripristino dello sfondo di default come richiesto
                 c.visited = false;
                 c.isCurrent = false;
                 
@@ -85,16 +95,15 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
             }
             currentWalk.clear();
             walking = false;
-            currentCell = null; 
+            currentCell = null;
 
         } else if (inWalk[neighbor.y][neighbor.x]) {
-            // CASO B: Loop-Erasure (L'omino interseca la sua stessa scia)
-            // Cancelliamo il cappio, rialziamo i muri e spegniamo i colori in tempo reale
+            // CASO B: Loop-Erasure
+            // Cancellazione del cappio e rialzamento dei muri
             while (currentWalk.get(currentWalk.size() - 1) != neighbor) {
                 Cell removed = currentWalk.remove(currentWalk.size() - 1);
                 inWalk[removed.y][removed.x] = false;
                 
-                // RENDERING: Spegniamo la scia e la testa sulle celle rimosse dal ciclo
                 removed.visited = false;
                 removed.isCurrent = false;
                 
@@ -110,7 +119,6 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
             currentWalk.add(neighbor);
             inWalk[neighbor.y][neighbor.x] = true;
             
-            // RENDERING: Coloriamo la nuova cella del cammino e spostiamo la testa arancione
             neighbor.visited = true;
             neighbor.isCurrent = true;
             
@@ -129,12 +137,14 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
     }
 
     private Cell getRandomUnvisitedCell(Cell[][] grid) {
+        // Raccoglie tutte le celle non visitate
         ArrayList<Cell> unvisited = new ArrayList<>();
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < cols; x++) {
                 if (!inMaze[y][x]) unvisited.add(grid[y][x]);
             }
         }
+        // e ne restituisce una casuale
         return unvisited.get(rand.nextInt(unvisited.size()));
     }
 
@@ -148,6 +158,7 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
     }
 
     private void breakWall(Cell c1, Cell c2) {
+        // Apre un passaggio tra le due celle
         if (c1.x == c2.x) {
             if (c1.y > c2.y) { c1.walls[0] = false; c2.walls[1] = false; }
             else { c1.walls[1] = false; c2.walls[0] = false; }
@@ -158,6 +169,7 @@ public class WilsonsAlgorithm implements MazeAlgorithm {
     }
 
     private void repairWall(Cell c1, Cell c2) {
+        // Chiude il passaggio tra due celle
         if (c1.x == c2.x) {
             if (c1.y > c2.y) { c1.walls[0] = true; c2.walls[1] = true; }
             else { c1.walls[1] = true; c2.walls[0] = true; }
