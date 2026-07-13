@@ -180,7 +180,6 @@ public class MazeVisualizer extends JFrame {
         // Per ogni (for) oggetto di tipo Component (che chiameremo comp) contenuto
         // dentro (:) la lista panel.getComponents()...
         for (Component comp : panel.getComponents()) {
-            // if (!comp.isVisible()) continue; // Non serve
             Dimension d = comp.getPreferredSize();
             
             if (!firstInRow && x + d.width + hgap > maxWidth) {
@@ -270,7 +269,6 @@ public class MazeVisualizer extends JFrame {
 
     // Gestione manuale dell'interruzione del labirinto
     private void stopAnimatedGeneration() {
-        // Condizione eccessiva: animationTimer != null && animationTimer.isRunning()
         if (animationTimer.isRunning()) {
             animationTimer.stop();
         }
