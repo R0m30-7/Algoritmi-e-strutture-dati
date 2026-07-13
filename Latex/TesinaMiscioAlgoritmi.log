@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.18)  3 JUL 2026 17:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.5.18)  13 JUL 2026 14:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -528,7 +528,7 @@ l.129 	N
 [1
 
 ] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14]
-Underfull \hbox (badness 4765) in paragraph at lines 357--358
+Underfull \hbox (badness 4765) in paragraph at lines 354--355
 []\T1/cmr/m/n/12 Wikipedia con-tri-bu-tors, ``Ma-ze ge-ne-ra-tion al-go-ri-thm,
 '' \T1/cmr/m/it/12 Wi-ki-pe-dia, The Free
  []
@@ -544,7 +544,7 @@ Package rerunfilecheck Info: File `TesinaMiscioAlgoritmi.out' has not changed.
 Here is how much of TeX's memory you used:
  14579 strings out of 467691
  253593 string characters out of 5414987
- 694018 words of memory out of 5000000
+ 694019 words of memory out of 5000000
  43376 multiletter control sequences out of 15000+600000
  643874 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -570,9 +570,9 @@ s/cm/cmmi8.pfb><C:/Users/romeo/AppData/Local/Programs/MiKTeX/fonts/type1/public
 ts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/romeo/AppData/Local/Programs/MiK
 TeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/romeo/AppData/Local/Pro
 grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on TesinaMiscioAlgoritmi.pdf (17 pages, 456663 bytes).
+Output written on TesinaMiscioAlgoritmi.pdf (17 pages, 455622 bytes).
 PDF statistics:
- 759 PDF objects out of 1000 (max. 8388607)
+ 758 PDF objects out of 1000 (max. 8388607)
  78 named destinations out of 1000 (max. 500000)
  262 words of extra memory for PDF output out of 10000 (max. 10000000)
 
